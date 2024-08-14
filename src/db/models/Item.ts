@@ -28,5 +28,5 @@ export const getAllItems = async (): Promise<Item[]> => {
 export const itemExistBySku = async (sku: string) => {
   const db = getDatabase();
   const item = await db.collection<Item>("items").findOne({ sku });
-  return !!item
+  return item ? true : false
 };
