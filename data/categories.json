@@ -1,0 +1,50 @@
+{
+  "MCO180917": {
+    "default_values": {
+      "Nombre": "Beauty Care"
+    },
+    "parsed_attributes": {}
+  },
+  "MCO412010": {
+    "parsed_attributes": {
+      "Forma del producto": "Formato"
+    },
+    "default_values": {}
+  },
+  "MCO181042": {
+    "parsed_attributes": {
+      "Forma del producto": "Formato del maquillaje"
+    },
+    "default_values": {}
+  },
+  "MCO441231": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Es un kit de fábrica": "No"
+    }
+  },
+  "MCO157400": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Es un kit de fábrica": "No"
+    }
+  },
+  "MCO429392": {
+    "parsed_attributes": {
+      "Tipo de acabado": "Efecto del polvo"
+    },
+    "default_values": {}
+  },
+  "MCO181069": {
+    "parsed_attributes": {
+      "Forma del producto": "Formato del fortalecedor"
+    },
+    "default_values": {}
+  },
+  "MCO8830": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Formato del suplemento": "Polvo"
+    }
+  }
+}
