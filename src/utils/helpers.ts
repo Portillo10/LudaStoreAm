@@ -55,7 +55,6 @@ export const separateDimensionsAndWeight = (dimensions: string) => {
     const result: Record<string, string> = {};
   
     if (dimensions.includes(";")) {
-      console.log(dimensions);
       
       const [size, weight] = dimensions.trim().split(";");
       result["Dimensiones"] = dimensionsToCm(size.trim());

@@ -239,6 +239,9 @@ export class Product {
       weight: this.attributes["Peso"],
       dimensions: this.attributes["Dimensiones"],
       category_id: this.category_id,
+      description: this.description,
+      attributes: this.attributes,
+      pictures: this.pictures
     };
 
     return item;

@@ -13,6 +13,7 @@ import { connectToDatabase } from "../db/database";
 import { createItem, Item } from "../db/models/Item";
 import { input } from "../utils/inputHelper";
 import { deleteLink } from "../db/models/link";
+import { createProduct, ProductItem } from "../db/models/product";
 
 (async () => {
   await connectToDatabase();
@@ -24,12 +25,16 @@ import { deleteLink } from "../db/models/link";
   const usdRate = await getUsdToCopRate();
   if (!usdRate) throw new Error("No fue posible obtener el precio del dolar");
 
-  const categoryId = "MCO180917";
-  const url =
-    "https://www.amazon.com/-/es/s?keywords=Aceites+Faciales&i=beauty&rh=n%3A7792527011%2Cp_85%3A2470955011%2Cp_72%3A1248873011&dc&language=es&c=ts&qid=1720219878&rnid=1248871011&ts_id=7792527011&ref=sr_nr_p_72_1&ds=v1%3AuXH3nBXk1MMzHzVTSxaKS6pjKDaAVdxhtvfZLwvps1U";
+  const config = await readJSON("data/config.json")
+
+  const categoryId = config["category_id"];
+  const url = config["url"]
+  console.log(categoryId, url);
   const defaultWeight = await input("Ingrese un peso por defecto para la categoría: ")
 
-  const browser = await chromium.launch({ headless: false });
+  
+
+  const browser = await chromium.launch({ headless: true });
 
   const context = await browser.newContext();
   const itemsPage = new ItemsPage(context);
@@ -53,6 +58,7 @@ import { deleteLink } from "../db/models/link";
   console.log("Links encontrados:", links.length);
 
   let postedProducts = 0;
+  let errorsCount = 0;
   let maxWorkers = 4;
 
   const contextPool: BrowserContext[] = [];
@@ -87,18 +93,23 @@ import { deleteLink } from "../db/models/link";
           token,
           usdRate
         );
-        const data: Item = {
+        const data: ProductItem = {
           ...pageData.getItemInfo(),
           item_id: product_id,
           state: "active",
         };
 
-        await createItem(data);
+        await createProduct(data);
         await deleteLink(link)
-        saveData({data: pageData, ml_price}, 'data/products.json')
+        // saveData({data: pageData, ml_price}, 'data/products.json')
         postedProducts++;
+
+        console.log(`${postedProducts} publicados de ${links.length}`);
         return pageData;
       } catch (error) {
+        errorsCount++
+        console.log(`${errorsCount} productos omitidos o con errores`);
+        
         if (itemPage) {
           itemPage.descompose();
         }
@@ -106,10 +117,14 @@ import { deleteLink } from "../db/models/link";
           attemp++;
           continue;
         }
-        saveData(
-          { error: error instanceof Error ? error.message : "", link, categoryId },
-          "data/errors.json"
-        );
+        try {
+          saveData(
+            { error: error instanceof Error ? error.message : "", link, categoryId },
+            "data/errors.json"
+          )
+        } catch (error) {
+          
+        }
         // await newContext?.close();
         throw error;
       }
@@ -131,7 +146,7 @@ import { deleteLink } from "../db/models/link";
     }
     await browser.close();
   }
-  console.log(`${postedProducts} publicados de ${links.length}`);
+  // console.log(`${postedProducts} publicados de ${links.length}`);
 
   process.exit(0);
 })();

@@ -1,6 +1,6 @@
-import { chromium } from "playwright-extra";
 import { input } from "../utils/inputHelper";
 import { getRandomUserAgent, readJSON, writeJSON } from "../utils/jsonHelper";
+import { chromium } from "playwright";
 
 interface cookie {
   name: string,

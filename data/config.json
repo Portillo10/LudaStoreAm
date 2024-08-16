@@ -1,6 +1,9 @@
 {
   "client_id": "6850630523210149",
   "client_secret": "KqPkezm4j0vPprarIkFRHlszDtoCApPC",
-  "refresh_token": "TG-66bc31a869a6ee000178ad06-1242366457",
-  "access_token": "APP_USR-6850630523210149-081400-697067028e5ec577344b4223e3e556b0-1242366457"
+  "refresh_token": "TG-66be9b3dfac83e00011a1f35-1242366457",
+  "access_token": "APP_USR-6850630523210149-081520-dd395ba88e4532a8da5d4e4b7f0420a6-1242366457",
+  "url": "https://www.amazon.com/-/es/s?keywords=Rociadas+Hidratantes+para+Rostro&i=beauty&rh=n%3A15239989011%2Cp_85%3A2470955011%2Cp_72%3A1248873011&dc&language=es&c=ts&qid=1720219860&rnid=1248871011&ts_id=15239989011&ref=sr_nr_p_72_1&ds=v1%3AOI1GobGUzTgC%2BdA%2FpFhdm8ElicO5nNarSjkTgEbkTvI",
+  "category_id": "MCO180917",
+  "code":"npm run scrape"
 }

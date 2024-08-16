@@ -55,8 +55,10 @@ export class ItemsPage extends BasePage {
       let newLinks = await this.getLinks();
       productLinks.push(...newLinks);
       nextUrl = await this.getNextPageLink();
-      console.log(`${productLinks.length} productos extraídos ${newLinks.length}`);
-
+      console.log(`${productLinks.length} productos extraídos`);
+      if (productLinks.length >= 1000){
+        break
+      }
       // if (nextUrl) {
       //   const rt = await input("¿Desea continuar extrayendo links?: ");
       //   if (rt == "s") {
