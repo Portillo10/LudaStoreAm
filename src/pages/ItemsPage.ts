@@ -68,7 +68,6 @@ export class ItemsPage extends BasePage {
       // }
     }
 
-    await insertLinks(productLinks)
     // productLinks.length = 16
     return productLinks;
   }

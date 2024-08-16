@@ -30,6 +30,17 @@ export class Product {
     this.attributes = {};
   }
 
+  setData(data: any){
+    const { title, price, description, sku, pictures, category_id, attributes } = data;
+    this.title = title;
+    this.price = price;
+    this.description = description;
+    this.pictures = pictures;
+    this.seller_sku = sku;
+    this.category_id = category_id;
+    this.attributes = attributes;
+  }
+
   setImages(images: { source: string }[]) {
     this.pictures = images;
   }

@@ -24,4 +24,10 @@ export const createProduct = async (product: ProductItem) => {
     const db = getDatabase();
     const result = await db.collection("products").insertOne(product);
     return result.insertedId;
-  };
+};
+
+export const getProductBySku = async (sku: string) => {
+  const db = getDatabase();
+  const item = await db.collection<ProductItem>("products").findOne({ sku });
+  return item
+}; 

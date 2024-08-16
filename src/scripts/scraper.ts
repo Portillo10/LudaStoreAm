@@ -12,8 +12,9 @@ import { postProduct } from "../services/pubs";
 import { connectToDatabase } from "../db/database";
 import { createItem, Item } from "../db/models/Item";
 import { input } from "../utils/inputHelper";
-import { deleteLink } from "../db/models/link";
-import { createProduct, ProductItem } from "../db/models/product";
+import { deleteLink, insertLinks } from "../db/models/link";
+import { createProduct, ProductItem, getProductBySku } from "../db/models/product";
+import { extractSKUFromUrl } from "../utils/helpers";
 
 (async () => {
   await connectToDatabase();
@@ -57,6 +58,9 @@ import { createProduct, ProductItem } from "../db/models/product";
 
   console.log("Links encontrados:", links.length);
 
+  await insertLinks(links, categoryId)
+
+
   let postedProducts = 0;
   let errorsCount = 0;
   let maxWorkers = 4;
@@ -68,6 +72,27 @@ import { createProduct, ProductItem } from "../db/models/product";
   }
 
   const scrapeItem = async (link: string): Promise<Product> => {
+
+    const sku = extractSKUFromUrl(link)
+    if (sku){
+      const item = await getProductBySku(sku)
+      if (item){
+        console.log("producto duplicado");
+        return new Product({title:"", price:0, description:"", sku:""})
+        // const {_id, ...data} = item
+        // try {
+        //   const { product_id, ml_price } = await postProduct(
+        //     data,
+        //     token,
+        //     usdRate
+        //   );
+        // } catch (error) {
+          
+        // }
+        
+      }
+    }
+
     let attemp = 1;
     let newContext: BrowserContext | undefined = undefined;
     let itemPage: ItemPage | undefined = undefined;
@@ -104,11 +129,10 @@ import { createProduct, ProductItem } from "../db/models/product";
         // saveData({data: pageData, ml_price}, 'data/products.json')
         postedProducts++;
 
-        console.log(`${postedProducts} publicados de ${links.length}`);
+        console.log(`${postedProducts} publicados de ${links.length} - ${errorsCount} productos omitidos`);
         return pageData;
       } catch (error) {
         errorsCount++
-        console.log(`${errorsCount} productos omitidos o con errores`);
         
         if (itemPage) {
           itemPage.descompose();

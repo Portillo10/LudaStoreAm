@@ -46,5 +46,11 @@
     "default_values": {
       "Formato del suplemento": "Polvo"
     }
+  },
+  "MCO118195": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Formato del corrector": "Líquido"
+    }
   }
 }
