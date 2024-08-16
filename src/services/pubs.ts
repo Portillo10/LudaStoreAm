@@ -26,7 +26,7 @@ export const postProduct = async (
       throw new Error("Error publicando producto en MercadoLibre");
     }
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     if (error instanceof AxiosError) {
       console.log(error.message);    
     }

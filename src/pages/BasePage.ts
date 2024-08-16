@@ -1,7 +1,7 @@
 import { Page, BrowserContext, ElementHandle, Locator } from "playwright";
-import { fetchPageContent } from "../utils/scrapingBeeClient";
+import { fetchPageContent, fetchPageContentProxy } from "../utils/scrapingBeeClient";
 import { ProductDetails } from "../types/index";
-import {Cheerio} from '../models/CheerioModel'
+import { Cheerio } from '../models/CheerioModel'
 
 export abstract class BasePage {
   readonly context: BrowserContext;
@@ -26,8 +26,8 @@ export abstract class BasePage {
     if (this.openPage) {
       await this.openPage?.close();
     }
-    
-    this.currentContent = await fetchPageContent(url);
+
+    this.currentContent = await fetchPageContentProxy(url);
 
     if (this.currentContent) {
       this.cheerio = new Cheerio(this.currentContent)
@@ -41,6 +41,19 @@ export abstract class BasePage {
       throw new Error(`Error navegando hacia la página`);
     }
   }
+
+  // async navigateTo(url: string) {
+  //   if (this.openPage) {
+  //     await this.openPage?.close();
+  //   }
+
+  //   this.openPage = await this.context.newPage();
+  //   await this.openPage.goto(url, {
+  //     waitUntil: "domcontentloaded",
+  //   });
+  //   this.cheerio = new Cheerio(await this.openPage.content())
+  //   this.currentUrl = url;
+  // }
 
   async setContent(content: string, url: string) {
     if (!content) throw new Error("Missing content")

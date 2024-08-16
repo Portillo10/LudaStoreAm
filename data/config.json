@@ -1,9 +1,9 @@
 {
   "client_id": "6850630523210149",
   "client_secret": "KqPkezm4j0vPprarIkFRHlszDtoCApPC",
-  "refresh_token": "TG-66beacf5d2d27600016f71be-1242366457",
-  "access_token": "APP_USR-6850630523210149-081521-eefa42c230d00c5d796cd06cf016a373-1242366457",
-  "url": "https://www.amazon.com/s?i=beauty&rh=n%3A7792268011%2Cp_85%3A2470955011%2Cp_72%3A1248873011&dc&fs=true&language=es&ds=v1%3ABS7YatqJUl6VsyVHU2w5jtt9G5KZlAR35mXvR4TlkOo&qid=1720219823&rnid=1248871011&ref=sr_nr_p_72_1",
+  "refresh_token": "TG-66bf7958602306000132135c-1242366457",
+  "access_token": "APP_USR-6850630523210149-081612-5655075ba175ba61f135d4a980915b5a-1242366457",
+  "url": "https://www.amazon.com/-/es/s?keywords=Sueros+Faciales&i=beauty&rh=n%3A7792528011%2Cp_85%3A2470955011%2Cp_72%3A1248873011&dc&language=es&c=ts&qid=1720219774&rnid=1248871011&ts_id=7792528011&ref=sr_nr_p_72_1&ds=v1%3AZUQ6qAS2mRRGGOLHqP5uan8Oo6R4%2BbRYo2xL4hKMe5g",
   "category_id": "MCO180917",
   "code": "npm run scrape"
 }

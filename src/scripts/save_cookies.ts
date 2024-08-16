@@ -14,8 +14,8 @@ interface cookie {
 }
   
 (async () => {
-  const cookies: cookie[] = await readJSON("data/cookies.json")
   const browser = await chromium.launch({ headless: false });
+  const cookies: cookie[] = await readJSON("data/cookies.json")
   const randomUserAgent = await getRandomUserAgent()
   const newContext = await browser.newContext({
     userAgent: randomUserAgent, storageState: {
