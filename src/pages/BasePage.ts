@@ -27,7 +27,7 @@ export abstract class BasePage {
       await this.openPage?.close();
     }
 
-    this.currentContent = await fetchPageContentProxy(url);
+    this.currentContent = await fetchPageContent(url);
 
     if (this.currentContent) {
       this.cheerio = new Cheerio(this.currentContent)
@@ -50,6 +50,7 @@ export abstract class BasePage {
   //   this.openPage = await this.context.newPage();
   //   await this.openPage.goto(url, {
   //     waitUntil: "domcontentloaded",
+  //     timeout:40000
   //   });
   //   this.cheerio = new Cheerio(await this.openPage.content())
   //   this.currentUrl = url;

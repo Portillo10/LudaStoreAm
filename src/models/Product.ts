@@ -76,7 +76,6 @@ export class Product {
       "Dimensiones del producto": "Dimensiones",
       "Dimensiones del artículo Largo x Ancho x Altura": "Dimensiones",
       "Dimensiones del artículo LxWxH": "Dimensiones",
-      "Recuento de unidades": "Unidades",
       "Número de artículos": "Unidades",
       "Fabricante": "Marca"
     };
@@ -124,10 +123,11 @@ export class Product {
         }
       }
 
-      this.attributes = {
-        ...this.attributes,
-        ...default_values,
-      };
+      for (const [key, value] of Object.entries(default_values)) {
+        if (!this.attributes.hasOwnProperty(key) && typeof(value) === "string"){
+          this.attributes[key] = value
+        }
+      }
     }
   }
 

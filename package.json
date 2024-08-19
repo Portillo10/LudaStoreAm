@@ -7,7 +7,9 @@
     "scrape": "ts-node src/scripts/scraper.ts",
     "restore-cookies": "ts-node src/scripts/save_cookies.ts",
     "tracker": "venv\\Scripts\\activate && python py/scripts/price_tracker.py",
-    "test": "ts-node tests/test.ts"
+    "test": "ts-node tests/test.ts",
+    "testdb": "ts-node tests/dbsolution.ts",
+    "repub": "ts-node src/scripts/repub.ts"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +23,7 @@
     "image-size": "^1.1.1",
     "mongodb": "^6.8.0",
     "playwright": "^1.45.2",
+    "tesseract.js": "^5.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.3",
     "yahoo-finance2": "^2.11.3"

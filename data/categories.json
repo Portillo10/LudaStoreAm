@@ -48,7 +48,9 @@
     }
   },
   "MCO118195": {
-    "parsed_attributes": {},
+    "parsed_attributes": {
+      "Forma del producto":"Formato del corrector"
+    },
     "default_values": {
       "Formato del corrector": "Líquido"
     }

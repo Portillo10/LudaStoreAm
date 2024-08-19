@@ -224,7 +224,9 @@ export class ItemPage extends BasePage {
 
   async getPageData() {
     const title = this.cheerio?.getTitle();
-    if (!title) throw new Error("Title not found");
+    if (!title) {
+      await input("Title not found, press any key")
+      throw new Error("Title not found");}
 
     const price = this.cheerio?.getPrice();
     if (!price) {

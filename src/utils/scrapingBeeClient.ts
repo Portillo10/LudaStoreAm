@@ -29,6 +29,7 @@ export const fetchPageContent = async (url: string): Promise<string> => {
           cookies,
           api_key: API_KEY,
           render_js: 'false',
+          // stealth_proxy: 'true'
           // premium_proxy: 'true',
           // country_code:'us'
         }

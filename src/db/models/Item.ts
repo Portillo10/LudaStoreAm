@@ -30,3 +30,9 @@ export const itemExistBySku = async (sku: string) => {
   const item = await db.collection<Item>("items").findOne({ sku });
   return item ? true : false
 };
+
+export const getItemBySku = async (sku: string) => {
+  const db = getDatabase();
+  const item = await db.collection<Item>("items").findOne({ sku });
+  return item
+}

@@ -1,20 +1,25 @@
-import axios from 'axios';
-import { imageSize } from 'image-size';
-import { readJSON } from './jsonHelper';
+import axios from "axios";
+import { imageSize } from "image-size";
+import { readJSON } from "./jsonHelper";
 
 export async function allowImageSize(url: string): Promise<boolean> {
-    try {
-        const response = await axios.get(url, { responseType: 'arraybuffer' });
-        const dimensions = imageSize(response.data);
-        if (dimensions.width && dimensions.height && dimensions.width > 500 && dimensions.height > 500 ) {
-            return true;
-        } else {
-            return false;
-        }
-    } catch (error) {
-      console.error('Error al obtener la imagen:', error);
-      return true
+  try {
+    const response = await axios.get(url, { responseType: "arraybuffer" });
+    const dimensions = imageSize(response.data);
+    if (
+      dimensions.width &&
+      dimensions.height &&
+      dimensions.width >= 500 &&
+      dimensions.height >= 500
+    ) {
+      return true;
+    } else {
+      return false;
     }
+  } catch (error) {
+    console.error("Error al obtener la imagen:", error);
+    return true;
+  }
 }
 
 export const formatCookies = (cookies: any[]) => {
@@ -26,6 +31,10 @@ export const formatCookies = (cookies: any[]) => {
 
 export const extractSKUFromUrl = (url: string): string | null => {
   const pattern = /(?:\/|%2F)(F)?dp(?:\/|%2F)([A-Z0-9]+)/;
+  if (!url) {
+    console.log(url);
+    return null;
+  }
   const match = url.match(pattern);
 
   if (match) {
@@ -45,28 +54,28 @@ export const extractWeightFromText = (text: string) => {
 };
 
 export function removeEmojis(text: string): string {
-  const emojiRegex = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F700}-\u{1F77F}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA70}-\u{1FAFF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu;
+  const emojiRegex =
+    /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F700}-\u{1F77F}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA70}-\u{1FAFF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{3010}-\u{3011}]|\u{2744}\u{FE0F}/gu;
 
-  return text.replace(emojiRegex, '');
+  return text.replace(emojiRegex, "");
 }
 
 export const separateDimensionsAndWeight = (dimensions: string) => {
   try {
     const result: Record<string, string> = {};
-  
+
     if (dimensions.includes(";")) {
-      
       const [size, weight] = dimensions.trim().split(";");
       result["Dimensiones"] = dimensionsToCm(size.trim());
       result["Peso"] = weight.trim();
     } else {
       result["Dimensiones"] = dimensionsToCm(dimensions.trim());
     }
-  
+
     return result;
   } catch (error) {
     console.log("Error formateando dimensiones");
-    throw error
+    throw error;
   }
 };
 
@@ -106,7 +115,7 @@ export const weightToPounds = (weight: string, units: number) => {
   }
 
   const parts = weight.split(" ");
-  const numberPart = parts[0].replace(',', '.');
+  const numberPart = parts[0].replace(",", ".");
   const unitPart = parts[1].toLowerCase();
 
   const numberWeight = parseFloat(cleanWeight(numberPart)) * units;
@@ -131,7 +140,7 @@ export const weightToPounds = (weight: string, units: number) => {
       libras = numberWeight * 2.20462;
       break;
     default:
-      throw new Error(`Unidad de peso desconocida: ${unitPart}`)
+      throw new Error(`Unidad de peso desconocida: ${unitPart}`);
   }
 
   const librasRedondeadas = Math.ceil(libras * 1.1);
@@ -140,15 +149,15 @@ export const weightToPounds = (weight: string, units: number) => {
 };
 
 export function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export const extractChairsNumber = (text: string): number | null => {
-  const regex = /\b(?:sillas para|para|sillas|taburetes)\s+(\d+)|(\d+)\s+(?:sillas|taburetes)\b/gi;
+  const regex =
+    /\b(?:sillas para|para|sillas|taburetes)\s+(\d+)|(\d+)\s+(?:sillas|taburetes)\b/gi;
   const match = regex.exec(text);
   if (match) {
     return match[1] ? parseInt(match[1], 10) : parseInt(match[2], 10);
   }
   return null;
 };
-
