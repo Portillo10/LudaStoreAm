@@ -30,12 +30,12 @@ interface cookie {
   const codeZipIndex = Math.random();
   const miamiCodeZip = miamiCodeZipList[codeZipIndex];
   const browser = await chromium.launch({ headless: false });
-  const cookies: cookie[] = await readJSON("data/cookies.json");
+  // const cookies: cookie[] = await readJSON("data/cookies.json");
   const randomUserAgent = await getRandomUserAgent();
   const newContext = await browser.newContext({
     userAgent: randomUserAgent,
     storageState: {
-      cookies: cookies,
+      cookies: [],
       origins: [
         {
           origin: "https://www.amazon.com/",

@@ -16,6 +16,20 @@ def get_json_content(file_name: str):
     except json.JSONDecodeError:
         return []
 
+def save_json(datos, file_name):
+    """
+    Guarda un diccionario en un archivo JSON.
+
+    :param datos: Diccionario que contiene la información a guardar.
+    :param nombre_archivo: Nombre del archivo JSON en el que se guardarán los datos.
+    """
+    try:
+        file_path = os.path.join(current_dir, f'../../data/{file_name}')
+        with open(file_path, 'w') as archivo:
+            json.dump(datos, archivo, indent=4)
+    except IOError as e:
+        print(f"Error al guardar el archivo {file_name}: {e}")
+
 def load_user_agents_from_json(file_name):
     user_agents = get_json_content(file_name)
     return user_agents.get('user_agents', [])

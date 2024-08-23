@@ -30,6 +30,7 @@ import { insertPostedLink, postedLinkExist } from "../db/models/postedLink";
 import { insertError } from "../db/models/error";
 import { isAxiosError } from "axios";
 import { Task } from "../models/taskManager";
+import { createTask } from "../db/models/task";
 
 interface cookie {
   name: string;
@@ -52,7 +53,7 @@ interface cookie {
 
   const linkList = await readLinksFromCsv();
 
-  const defaultWeight = 3;
+  const defaultWeight = 1;
 
   let totalProducts = 0;
   let limit = 1500;
@@ -60,17 +61,19 @@ interface cookie {
   const browser = await chromium.launch({ headless: true });
   const cookies: cookie[] = await readJSON("data/cookies.json");
 
-  const taskList = Task.getTasks(linkList)
+  const taskList = await Task.getTasks(linkList);
 
-  for (const linkElement of linkList) {
+  for (const task of taskList) {
     if (totalProducts >= limit) {
       token = await refreshAccessToken();
       limit += 1500;
     }
 
-    if (await postedLinkExist(linkElement.url)) {
+    if (await postedLinkExist(task.mainUrl)) {
       continue;
     }
+
+    await task.saveTask()
 
     const storageState = {
       cookies,
@@ -89,14 +92,9 @@ interface cookie {
     });
     const itemsPage = new ItemsPage(context);
 
-    
-    const url = linkElement["url"];
-    const categoryId = linkElement["category"];
-    
-    let links: any[] = [];
-    
+
     try {
-      links = await itemsPage.mapAllLinks(url);
+      await itemsPage.mapAllLinks2(task);
     } catch (error) {
       if (isAxiosError(error)) {
         console.log(error.response?.data);
@@ -104,13 +102,14 @@ interface cookie {
         console.log(error);
       }
     }
+
     await itemsPage.descompose();
 
-    console.log("Links encontrados:", links.length);
+    console.log("Links encontrados:", task.linkList.length);
 
-    totalProducts += links.length;
+    totalProducts += task.linkList.length;
 
-    await insertLinks(links, categoryId);
+    // await insertLinks(task.linkList, task.category_id || "");
 
     let postedProducts = 0;
     let errorsCount = 0;
@@ -128,10 +127,14 @@ interface cookie {
       );
     }
 
-    await insertPostedLink({ link: url, category_id: categoryId });
+    // await insertPostedLink({
+    //   link: task.mainUrl,
+    //   category_id: task.category_id,
+    // });
 
     const scrapeItem = async (link: string): Promise<Product> => {
       const sku = extractSKUFromUrl(link);
+      await task.deleteLinkElement(link)
       if (sku) {
         const item = await getProductBySku(sku);
         if (item) {
@@ -187,7 +190,7 @@ interface cookie {
             console.log("Setting default weight");
             pageData.setWeight(`${defaultWeight} lb`);
           }
-          await pageData.setCategoryId(categoryId);
+          await pageData.setCategoryId(task.category_id || "");
           pageData.correctTittle();
           pageData.correctDescription();
           try {
@@ -206,7 +209,7 @@ interface cookie {
             await deleteLink(link);
             postedProducts++;
             console.log(
-              `${postedProducts} publicados de ${links.length} - ${errorsCount} productos omitidos`
+              `${postedProducts} publicados de ${task.linkList.length} - ${errorsCount} productos omitidos`
             );
           } catch (error) {
             const data: ProductItem = {
@@ -236,7 +239,7 @@ interface cookie {
             await insertError({
               errorMsg: error instanceof Error ? error.message : "",
               link,
-              category_id: categoryId,
+              category_id: task.category_id || "",
               errorTime: new Date(),
             });
           } catch (error) {}
@@ -252,7 +255,7 @@ interface cookie {
     };
 
     try {
-      await runTasksVoid<string, Product>(links, scrapeItem, maxWorkers);
+      await runTasksVoid<string, Product>(task.linkList, scrapeItem, maxWorkers);
     } catch (error) {
       console.error("Error durante la ejecución de tareas:", error);
     } finally {
@@ -260,7 +263,8 @@ interface cookie {
         await context.close();
       }
     }
-    console.log(`${postedProducts} publicados de ${links.length}`);
+    await task.endTask()
+    console.log(`${postedProducts} publicados de ${task.linkList.length}`);
   }
   await browser.close();
 

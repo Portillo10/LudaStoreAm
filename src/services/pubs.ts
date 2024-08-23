@@ -28,9 +28,10 @@ export const postProduct = async (
   } catch (error) {
     // console.log(error);
     if (error instanceof AxiosError) {
-      console.log(error.message);    
+      console.log(error.message);
     }
     // console.log(data);
-    throw error
+    throw error;
   }
 };
+

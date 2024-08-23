@@ -118,7 +118,7 @@ export const weightToPounds = (weight: string, units: number) => {
   const numberPart = parts[0].replace(",", ".");
   const unitPart = parts[1].toLowerCase();
 
-  const numberWeight = parseFloat(cleanWeight(numberPart)) * units;
+  const numberWeight = parseFloat(cleanWeight(numberPart));
 
   let libras: number;
 
@@ -143,7 +143,8 @@ export const weightToPounds = (weight: string, units: number) => {
       throw new Error(`Unidad de peso desconocida: ${unitPart}`);
   }
 
-  const librasRedondeadas = Math.ceil(libras * 1.1);
+
+  const librasRedondeadas = libras > 1 ? Math.ceil(libras * 1.1) : Math.ceil(libras);
 
   return `${librasRedondeadas} lb`;
 };

@@ -23,8 +23,6 @@ def put_price(access_token, usd_rate, item: dict, new_price):
         "item_id": item_id
     }
     
-    print(data)
-    
     response = requests.put(url, data=json.dumps(data))
 
     if response.status_code == 200:

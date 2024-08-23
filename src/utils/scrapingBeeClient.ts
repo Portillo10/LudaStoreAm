@@ -18,7 +18,7 @@ export const fetchPageContent = async (url: string): Promise<string> => {
   // }
   
   const cookies = await loadAmazonCookies()
-  const maxRetries = 3
+  const maxRetries = 4
   let attempt = 0;
 
   while (attempt < maxRetries) {

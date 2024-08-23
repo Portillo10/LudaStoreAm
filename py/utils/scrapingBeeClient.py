@@ -9,7 +9,7 @@ if not scrape_key:
     raise Exception("Missing scrape key")
 
 def send_request(url):
-    cookies = get_amazon_cookies
+    cookies = get_amazon_cookies()
     if not cookies:
         print('sin galletas')
         return None

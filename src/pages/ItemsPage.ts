@@ -1,12 +1,9 @@
 import { BasePage } from "./BasePage";
 import { ElementHandle } from "playwright";
 import { isForbiddenProduct } from "../utils/flitersHelper";
-import { input } from "../utils/inputHelper";
-import { itemExistBySku } from "../db/models/Item";
 import { extractSKUFromUrl } from "../utils/helpers";
-import { writeJSON } from "../utils/jsonHelper";
-import { insertLinks } from "../db/models/link";
 import { getProductBySku } from "../db/models/product";
+import { Task } from "../models/taskManager";
 
 export class ItemsPage extends BasePage {
   async getNextPageLink(): Promise<string | null> {
@@ -23,25 +20,26 @@ export class ItemsPage extends BasePage {
 
   async getLinks(): Promise<string[]> {
     const itemSelector = 'div[data-component-type="s-search-result"]';
-    const titleSelector = 'div[data-cy="title-recipe"]';
-    const priceSelctor = 'div[data-cy="price-recipe"] span.a-price';
     const linksList = await this.openPage?.$$eval(
       itemSelector,
       (items): any[] => {
+        const titleSelector = 'div[data-cy="title-recipe"]';
+        const priceSelector = 'div[data-cy="price-recipe"] span.a-price';
         const allowItems = items.filter((item) => {
-          const price = item.querySelector(priceSelctor)?.textContent
-          if(!price){
-            console.log('Omitido - Producto no disponibe');
+          const price = item.querySelector(priceSelector)?.textContent;
+          if (!price) {
+            console.log("Omitido - Producto no disponibe");
           }
-          return price ? true : false
+          return price ? true : false;
         });
 
         return allowItems
           .map((item) => {
             const titleRecipe = item.querySelector(titleSelector);
+            const sku = item.getAttribute("data-asin");
             const title = titleRecipe?.textContent;
             const link = titleRecipe?.querySelector("a")?.href;
-            return { title, link };
+            return { title, link, sku };
           })
           .filter(
             (item) =>
@@ -50,40 +48,23 @@ export class ItemsPage extends BasePage {
       }
     );
 
-    console.log("Total de productos: ", linksList?.length);
+    console.log(linksList?.length, "productos encontrados");
     const result: string[] = [];
     if (!linksList) return [];
 
-    let duplicatedCount = 0;
+    let count = 0
     for (const item of linksList) {
       const sku = extractSKUFromUrl(item.link || "");
       const product = await getProductBySku(sku || "");
       if (product) {
-        duplicatedCount++;
-        // console.log('duplicado');
+        count++
       } else if (!isForbiddenProduct(item.title)) {
-        result.push(`https://www.amazon.com${item.link}`);
+        result.push(`https://www.amazon.com/-/es/dp/${item.sku}`);
       }
     }
-    console.log(`${duplicatedCount} productos duplicados`);
-
+    console.log(`${count} repetdidos`);
+    
     return result;
-
-    // return linksList
-    //   ? (await Promise.all(linksList
-    //     .filter(async (link) => {
-    //       const sku = extractSKUFromUrl(link.link || '');
-    //       const product = await getProductBySku(sku || '')
-    //       if (product) {
-    //         console.log('duplicado');
-    //         return false;
-    //       }
-    //       return (
-
-    //       );
-    //     })))
-    //     .map((link) => `https://www.amazon.com${link.link}`)
-    //   : [];
   }
 
   async mapAllLinks(baseUrl: string): Promise<string[]> {
@@ -98,16 +79,24 @@ export class ItemsPage extends BasePage {
       if (productLinks.length >= 1000) {
         break;
       }
-      // if (nextUrl) {
-      //   const rt = await input("¿Desea continuar extrayendo links?: ");
-      //   if (rt == "s") {
-      //     continue;
-      //   }
-      //   break;
-      // }
     }
 
-    // productLinks.length = 16
     return productLinks;
+  }
+
+  async mapAllLinks2(task: Task): Promise<void> {
+    while (task.currentUrl) {
+      await this.navigateTo(task.currentUrl);
+      let newLinks = await this.getLinks();
+      const currentUrl = await this.getNextPageLink();
+      await task.setCurrentUrl(currentUrl)
+      console.log(`${newLinks.length} productos extraídos`);
+      if (newLinks.length >= 10) {
+        newLinks.length = 5;
+        task.loadLinks(newLinks);
+        break;
+      }
+    }
+
   }
 }

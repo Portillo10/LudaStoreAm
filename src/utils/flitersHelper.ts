@@ -26,13 +26,12 @@ function cleanWord(word: string) {
 export const isForbiddenProduct = (title: string) => {
   const lowerTitle = title.toLowerCase();
   const forbiddenProducts: any[] = filterList["forbidden_products"];
-  // console.log(forbiddenProducts);
 
   for (const forbiddenProduct of forbiddenProducts) {
     const regex = new RegExp(`(^|\\s)${forbiddenProduct}(\\s|$)`);
 
     if (regex.test(lowerTitle)) {
-      console.log(`${title} - ${forbiddenProduct}`);
+      // console.log(`${title} - ${forbiddenProduct}`);
       return true;
     }
   }

@@ -9,7 +9,14 @@
     "tracker": "venv\\Scripts\\activate && python py/scripts/price_tracker.py",
     "test": "ts-node tests/test.ts",
     "testdb": "ts-node tests/dbsolution.ts",
-    "repub": "ts-node src/scripts/repub.ts"
+    "repub": "ts-node src/scripts/repub.ts",
+    "single": "ts-node tests/singlePub.ts",
+    "fix-prices": "ts-node tests/fixPrices.ts",
+    "fix-emptypubs": "ts-node src/scripts/getEmptyItems.ts",
+    "delete":"ts-node src/scripts/deleteItems.ts",
+    "delete-dup": "ts-node src/scripts/deleteDupItems.ts",
+    "calc-price": "ts-node src/scripts/calcPrice.ts"
+
   },
   "keywords": [],
   "author": "",
