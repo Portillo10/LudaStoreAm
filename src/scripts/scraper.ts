@@ -44,12 +44,12 @@ interface cookie {
 
 (async () => {
   await connectToDatabase();
-  let token = await refreshAccessToken("LudaStore");
+  // let token = await refreshAccessToken("LudaStore");
 
-  if (!token) throw new Error("No fue posible obtener el token");
+  // if (!token) throw new Error("No fue posible obtener el token");
 
-  const usdRate = await getUsdToCopRate();
-  if (!usdRate) throw new Error("No fue posible obtener el precio del dolar");
+  // const usdRate = await getUsdToCopRate();
+  // if (!usdRate) throw new Error("No fue posible obtener el precio del dolar");
 
   const linkList = await readLinksFromCsv();
 
@@ -62,10 +62,10 @@ interface cookie {
   const taskList = await Task.getTasks(linkList);
 
   for (const task of taskList) {
-    if (totalProducts >= limit) {
-      token = await refreshAccessToken("LudaStore");
-      limit += 1500;
-    }
+    // if (totalProducts >= limit) {
+    //   token = await refreshAccessToken("LudaStore");
+    //   limit += 1500;
+    // }
 
     if (await postedLinkExist(task.mainUrl)) {
       continue;
