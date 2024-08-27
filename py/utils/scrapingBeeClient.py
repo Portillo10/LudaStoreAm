@@ -1,6 +1,7 @@
 from scrapingbee import ScrapingBeeClient
 from utils.helpers import get_amazon_cookies
 import os
+import time
 
 scrape_key = os.getenv("SCRAPINGBEE_API_KEY")
 client = ScrapingBeeClient(scrape_key)
@@ -30,4 +31,5 @@ def send_request(url):
             return response.text
         else:
             print(f'Intento #{attempt} fallido.')
+            time.sleep(0.6)
     return None

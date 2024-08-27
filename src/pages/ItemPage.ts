@@ -225,8 +225,9 @@ export class ItemPage extends BasePage {
   async getPageData() {
     const title = this.cheerio?.getTitle();
     if (!title) {
-      await input("Title not found, press any key")
-      throw new Error("Title not found");}
+      // await input("Title not found, press any key")
+      throw new Error("Title not found");
+    }
 
     const price = this.cheerio?.getPrice();
     if (!price) {
@@ -246,21 +247,28 @@ export class ItemPage extends BasePage {
     if (!this.currentUrl)
       throw new Error("No se pudo obtener la url de la página.");
 
+    const itemCondition = this.cheerio?.getItemCondition();
+
     const sku = extractSKUFromUrl(this.currentUrl);
 
-    const product = new Product({ title, price, description, sku });
+    const product = new Product({
+      title,
+      price,
+      description,
+      sku,
+      condition: itemCondition,
+    });
     product.setAttributes(details, specs);
 
     if (!product.checkWeight()) {
       const weight = await this.getWeight();
       // if (!weight) throw new Error("Peso del producto no disponible");
-      if (weight)
-        product.setWeight(weight);
+      if (weight) product.setWeight(weight);
     }
 
     const imgSources = await this.getImgSources();
-    product.setImages(imgSources)
-    
+    product.setImages(imgSources);
+
     return product;
   }
 }

@@ -13,13 +13,20 @@ export class Task {
   public category_id: string | null;
   public currentUrl: string | null;
   public type: "scraper" | "tracker";
+  public weight: string;
 
-  constructor(url: string, productUrls: string[], category: string) {
+  constructor(
+    url: string,
+    productUrls: string[],
+    category: string,
+    weight: string
+  ) {
     this.mainUrl = url;
     this.linkList = productUrls;
     this.category_id = category;
     this.currentUrl = this.mainUrl;
     this.type = category ? "scraper" : "tracker";
+    this.weight = weight;
   }
 
   async saveTask() {
@@ -27,12 +34,13 @@ export class Task {
     if (!task) {
       await createTask(this);
     }
-    // console.log("si sirbe");
   }
 
-  static async getTasks(linkList: { url: string; category: string }[]) {
+  static async getTasks(
+    linkList: { url: string; category: string; weight: string }[]
+  ) {
     const taskList = linkList.map(
-      (element) => new Task(element.url, [], element.category)
+      (element) => new Task(element.url, [], element.category, element.weight)
     );
     const lastTask = await this.getLastTask();
     if (lastTask) {
@@ -48,11 +56,12 @@ export class Task {
     this.currentUrl = data.currentUrl;
     this.category_id = data.category_id;
     this.type = data.type;
+    this.weight = data.weight
   }
 
   static async getLastTask(): Promise<Task | null> {
     const lastTask = await getTask();
-    const task = new Task("", [], "");
+    const task = new Task("", [], "", "1");
     if (lastTask) {
       task.setTask(lastTask);
       return task;

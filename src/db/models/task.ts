@@ -39,7 +39,6 @@ export const deleteTask = async () => {
 export const addLinks = async (links: string[]) => {
   const collection = getCollection();
   const id = (await collection.find().toArray())[0]?._id;
-  console.log(links);
   const result = await collection.updateOne(
     { _id: id },
     {

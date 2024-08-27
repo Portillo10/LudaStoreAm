@@ -2,6 +2,7 @@ import axios from 'axios';
 import https from 'https'
 import { loadAmazonCookies, readJSON, writeJSON } from '../utils/jsonHelper'
 import { sleep } from './helpers';
+import { ScrapingBeeError } from '../errors/scrapingBeeError';
 
 const API_KEY = process.env.SCRAPINGBEE_API_KEY;
 if (!API_KEY) {
@@ -29,25 +30,20 @@ export const fetchPageContent = async (url: string): Promise<string> => {
           cookies,
           api_key: API_KEY,
           render_js: 'false',
-          // stealth_proxy: 'true'
-          // premium_proxy: 'true',
-          // country_code:'us'
         }
       });
-      // content[url] = response.data
-      // await writeJSON('data/content.json', content)
       return response.data;
     } catch (error) {
       attempt++;
       console.error(`Error fetching data from ScrapingBee (attempt ${attempt}):`);
       await sleep(100)
-      if (attempt >= maxRetries) {
-        throw error;
-      }
+      // if (attempt >= maxRetries) {
+      //   throw error;
+      // }
     }
   }
 
-  throw new Error('Max retries reached');
+  throw new ScrapingBeeError('Max retries reached');
 }
 
 export const fetchPageContentProxy = async (url: string): Promise<string> => {

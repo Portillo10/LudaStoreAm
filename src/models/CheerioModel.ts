@@ -204,4 +204,20 @@ export class Cheerio {
     const nextPageLink = nextPageButton.attr("href");
     return nextPageLink ? `https://www.amazon.com/${nextPageLink}` : null;
   }
+
+  getItemCondition(): string {
+    const conditionEnum: Record<string, string> = {
+      Refurbished: "refurbished",
+      Reacondicionado: "refurbished",
+    };
+
+    const selector = "#renewedSingleOfferCaption_feature_div";
+    const condition = this.$(selector).text().split("-")[0].trim();
+
+    if (conditionEnum.hasOwnProperty(condition)) {
+      return conditionEnum[condition];
+    } else {
+      return "new";
+    }
+  }
 }

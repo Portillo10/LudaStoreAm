@@ -48,10 +48,10 @@ import { input } from "../utils/inputHelper";
       await insertError({
         category_id: product.category_id || "",
         errorMsg: "Error publicando producto",
-        link: `http://amazon.com/-/es/dp${product.sku}`,
+        link: `http://amazon.com/-/es/dp/${product.sku}`,
         errorTime: new Date(),
       });
     }
-    await sleep(200);
+    await sleep(500);
   }
 })();

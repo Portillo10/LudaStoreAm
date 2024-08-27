@@ -15,8 +15,10 @@
     "fix-emptypubs": "ts-node src/scripts/getEmptyItems.ts",
     "delete":"ts-node src/scripts/deleteItems.ts",
     "delete-dup": "ts-node src/scripts/deleteDupItems.ts",
-    "calc-price": "ts-node src/scripts/calcPrice.ts"
-
+    "calc-price": "ts-node src/scripts/calcPrice.ts",
+    "fix-weight": "ts-node src/scripts/fixWeight.ts",
+    "clean": "ts-node src/scripts/cleanPubs.ts",
+    "set-products":"ts-node src/scripts/setProducts.ts"
   },
   "keywords": [],
   "author": "",

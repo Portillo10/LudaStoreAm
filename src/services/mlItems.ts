@@ -39,7 +39,7 @@ export const getItemsByItemId = async (
   access_token: string
 ) => {
   const idList = itemIds.filter((id) => id != null);
-  const url = `${endpoint}/items?ids=${idList.join(",")}`;
+  const url = `${endpoint}/items?ids=${idList.join(",")}&attributes=id,title,attributes,status`;
   try {
     const response = await axios.get(url, {
       headers: {
@@ -50,6 +50,8 @@ export const getItemsByItemId = async (
       const { data } = response;
       const result: any[] = data.map((item: any) => item.body);
       return result;
+    }else{
+      return []
     }
   } catch (error) {
     if (isAxiosError(error)) {
@@ -82,7 +84,7 @@ export const deleteItemById = async (item_id: string, access_token: string) => {
       console.log(`Error cerrando producto ${error.response?.data}`);
     }
   }
-  await sleep(1000);
+  await sleep(2000);
   try {
     const response = axios.put(url, deletedData, {
       headers: {
@@ -95,5 +97,5 @@ export const deleteItemById = async (item_id: string, access_token: string) => {
       console.log(`Error eliminando producto ${error.response?.data}`);
     }
   }
-  await sleep(1000);
+  // await sleep(1000);
 };

@@ -1,10 +1,17 @@
 import { Attributes, ProductDetails } from "../types/index";
-import { cleanText, cutText, isAllowBrand } from "../utils/flitersHelper";
+import {
+  cleanText,
+  cutText,
+  isAllowBrand,
+  isForbbidenWord,
+  isForbiddenProduct,
+} from "../utils/flitersHelper";
 import {
   extractChairsNumber,
   separateDimensionsAndWeight,
   weightToPounds,
   removeEmojis,
+  extractDIN,
 } from "../utils/helpers";
 import { readJSON } from "../utils/jsonHelper";
 
@@ -15,12 +22,13 @@ export class Product {
   private description: string;
   private attributes: Attributes;
   private category_id: string | null;
+  private condition: "new" | "refurbished ";
   private pictures: {
     source: string;
   }[];
 
   constructor(data: any) {
-    const { title, price, description, sku } = data;
+    const { title, price, description, sku, condition } = data;
     this.title = title;
     this.price = price;
     this.description = description;
@@ -28,10 +36,20 @@ export class Product {
     this.seller_sku = sku;
     this.category_id = null;
     this.attributes = {};
+    this.condition = condition;
   }
 
-  setData(data: any){
-    const { title, price, description, sku, pictures, category_id, attributes } = data;
+  setData(data: any) {
+    const {
+      title,
+      price,
+      description,
+      sku,
+      pictures,
+      category_id,
+      attributes,
+      condition,
+    } = data;
     this.title = title;
     this.price = price;
     this.description = description;
@@ -39,6 +57,7 @@ export class Product {
     this.seller_sku = sku;
     this.category_id = category_id;
     this.attributes = attributes;
+    this.condition = condition;
   }
 
   setImages(images: { source: string }[]) {
@@ -60,9 +79,14 @@ export class Product {
       }
       if (!this.attributes[attributeName])
         throw new Error(`Atributo faltante ${attributeName}`);
-    } else {
-      await this.setAttrByCategory(categoryId)
+    } else if (categoryId === "MCO3384") {
+      const { Ancho: width } = this.attributes;
+      this.attributes["Ancho del parlante"] = width;
+    } else if (categoryId === "MCO416860") {
+      const DIN = extractDIN(this.title);
+      this.attributes["Dimensiones estándar del estéreo"] = DIN || "2 DIN";
     }
+    await this.setAttrByCategory(categoryId);
   }
 
   setAttributes(details: any, specs: any) {
@@ -77,7 +101,8 @@ export class Product {
       "Dimensiones del artículo Largo x Ancho x Altura": "Dimensiones",
       "Dimensiones del artículo LxWxH": "Dimensiones",
       "Número de artículos": "Unidades",
-      "Fabricante": "Marca"
+      Fabricante: "Marca",
+      "Número de pieza del fabricante": "Número de pieza",
     };
 
     for (const key in details) {
@@ -85,8 +110,19 @@ export class Product {
       if (Object.keys(parsedKeys).includes(rightKey)) {
         rightKey = parsedKeys[rightKey];
       }
-      if (!result.hasOwnProperty(rightKey) && details[key].length < 200) {
-        result[rightKey] = details[key];
+      if (
+        !result.hasOwnProperty(rightKey) &&
+        details[key].length < 200 &&
+        !isForbbidenWord(details[key])
+      ) {
+        if (
+          rightKey.toLocaleLowerCase().includes("marca") &&
+          (isForbiddenProduct(details[key]) || isAllowBrand(details[key]))
+        ) {
+          result[rightKey] = "Producto genérico";
+        } else {
+          result[rightKey] = details[key];
+        }
       }
     }
 
@@ -95,17 +131,44 @@ export class Product {
       if (Object.keys(parsedKeys).includes(rightKey)) {
         rightKey = parsedKeys[rightKey];
       }
-      if (!result.hasOwnProperty(rightKey) && specs[key].length < 200) {
-        result[rightKey] = specs[key];
+      if (
+        !result.hasOwnProperty(rightKey) &&
+        specs[key].length < 200 &&
+        !isForbbidenWord(specs[key])
+      ) {
+        if (
+          rightKey.toLocaleLowerCase().includes("marca") &&
+          (isForbiddenProduct(specs[key]) || isAllowBrand(details[key]))
+        ) {
+          result[rightKey] = "Producto genérico";
+        } else {
+          result[rightKey] = specs[key];
+        }
       }
     }
 
     const { Dimensiones: dimensions } = result;
     if (!dimensions) throw new Error("Dimensiones no disponibles");
 
+    const splitedDimensions = dimensions.split("x");
+
+    const depth =
+      splitedDimensions[0].split('"')[0].split(" ")[0].trim() + " pulgadas";
+    const width =
+      splitedDimensions[1].split('"')[0].split(" ")[0].trim() + " pulgadas";
+    const height =
+      splitedDimensions[2].split('"')[0].split(" ")[0].trim() + " pulgadas";
+
     const newDimensions = separateDimensionsAndWeight(dimensions);
 
-    this.attributes = { ...result, ...newDimensions, SKU:this.seller_sku };
+    this.attributes = {
+      ...result,
+      ...newDimensions,
+      SKU: this.seller_sku,
+      Largo: depth,
+      Ancho: width,
+      Alto: height,
+    };
   }
 
   async setAttrByCategory(category_id: string) {
@@ -114,18 +177,20 @@ export class Product {
       const { default_values, parsed_attributes } = categories[category_id];
 
       for (const [key, rightKey] of Object.entries(parsed_attributes)) {
-        if (this.attributes.hasOwnProperty(key)) {
+        if (
+          typeof rightKey === "string" &&
+          this.attributes.hasOwnProperty(key) &&
+          !this.attributes.hasOwnProperty(rightKey)
+        ) {
           const value = this.attributes[key];
           delete this.attributes[key];
-          if (typeof rightKey === "string") {
-            this.attributes[rightKey] = value;
-          }
+          this.attributes[rightKey] = value;
         }
       }
 
       for (const [key, value] of Object.entries(default_values)) {
-        if (!this.attributes.hasOwnProperty(key) && typeof(value) === "string"){
-          this.attributes[key] = value
+        if (!this.attributes.hasOwnProperty(key) && typeof value === "string") {
+          this.attributes[key] = value;
         }
       }
     }
@@ -146,6 +211,10 @@ export class Product {
   setWeight(weight: string) {
     const units = this.getUnits();
     this.attributes["Peso"] = weightToPounds(weight, units);
+  }
+
+  setDefaultWeight(weight: string) {
+    this.attributes["Peso"] = weight;
   }
 
   getUnits() {
@@ -252,7 +321,8 @@ export class Product {
       category_id: this.category_id,
       description: this.description,
       attributes: this.attributes,
-      pictures: this.pictures
+      pictures: this.pictures,
+      condition: this.condition,
     };
 
     return item;

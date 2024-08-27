@@ -55,7 +55,7 @@ export const extractWeightFromText = (text: string) => {
 
 export function removeEmojis(text: string): string {
   const emojiRegex =
-    /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F700}-\u{1F77F}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA70}-\u{1FAFF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{3010}-\u{3011}]|\u{2744}\u{FE0F}/gu;
+    /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F700}-\u{1F77F}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA70}-\u{1FAFF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{2300}-\u{23FF}]|[\u{2B50}]|[\u{1F004}-\u{1F0CF}]|[\u{1F1E6}-\u{1F1FF}]|[\u{2B06}]|[\u{2934}-\u{2935}]|[\u{3030}]|\u{2744}\u{FE0F}/gu;
 
   return text.replace(emojiRegex, "");
 }
@@ -162,3 +162,9 @@ export const extractChairsNumber = (text: string): number | null => {
   }
   return null;
 };
+
+export const extractDIN = (text: string): string | null => {
+  const regex = /\d+ DIN/g;
+  const matches = text.match(regex);
+  return matches ? matches[0] : null
+}

@@ -90,7 +90,7 @@ export const runTasks = async <T, R>(
 
 export const runTasksVoid = async <T, R>(
   array: T[],
-  taskFunction: (taskElement: T) => Promise<R>,
+  taskFunction: (taskElement: T) => Promise<R | null>,
   maxWorkers: number
 ) => {
   const tasks: Promise<void>[] = []

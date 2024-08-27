@@ -4,14 +4,15 @@ import { join } from "path";
 
 
 type Link = {
+    weight: string,
     category: string,
-    url: string
+    url: string,
 }
 
 export const readCsv = <T>(csvFilePath: string): Promise<T[]> => {
     const filePath = join(__dirname, "../../", csvFilePath);
 
-    const headers = ['category', 'url'];
+    const headers = ['weight','category', 'url'];
 
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf-8' });
 

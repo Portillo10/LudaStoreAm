@@ -49,10 +49,107 @@
   },
   "MCO118195": {
     "parsed_attributes": {
-      "Forma del producto":"Formato del corrector"
+      "Forma del producto": "Formato del corrector"
     },
     "default_values": {
       "Formato del corrector": "Líquido"
+    }
+  },
+  "MCO167791": {
+    "parsed_attributes": {
+      "Tipo de conector": "Tipo de cable y adaptador"
+    },
+    "default_values": {
+      "Tipo de cable y adaptador": "RCA",
+      "Tipo de producto": "Adaptador"
+    }
+  },
+  "MCO50217": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Tipo de producto": "Batería"
+    }
+  },
+  "MCO7908": {
+    "parsed_attributes": {
+      "Capacidad de almacenamiento de memoria": "Capacidad"
+    },
+    "default_values": {}
+  },
+  "MCO59824": {
+    "parsed_attributes": {
+      "Tamaño de rosca del filtro para fotos": "Tamaño del filtro",
+      "Tipo de efecto de filtro fotográfico": "Tipo de filtro"
+    },
+    "default_values": {}
+  },
+  "MCO14903": {
+    "parsed_attributes": {
+      "Tamaño de pantalla": "Tamaño de la pantalla"
+    },
+    "default_values": {}
+  },
+  "MCO3384": {
+    "parsed_attributes": {
+      "Potencia de salida": "Potencia RMS",
+      "Altavoz Potencia de salida máxima": "Potencia RMS",
+      "Unidades": "Cantidad de parlantes"
+    },
+    "default_values": {
+      "Tipo de vehículo": "Auto/Camioneta",
+      "Cantidad de parlantes": 1,
+      "Cantidad de bobinas": 1
+    }
+  },
+  "MCO87920": {
+    "parsed_attributes": {
+      "Tipo de conector": "Tipo de cable y adaptador",
+      "Tipo de cable": "Tipo de cable y adaptador"
+    },
+    "default_values": {}
+  },
+  "MCO424978": {
+    "parsed_attributes": {
+      "Número de modelo del producto": "Número de pieza"
+    },
+    "default_values": {
+      "Formato": "Clip para rejilla de aire"
+    }
+  },
+  "MCO116352": {
+    "parsed_attributes": {
+      "Número de modelo": "Número de pieza"
+    },
+    "default_values": {}
+  },
+  "MCO173824": {
+    "parsed_attributes": {
+      "Número de modelo": "Número de pieza"
+    },
+    "default_values": {}
+  },
+  "MCO87926": {
+    "parsed_attributes": {
+      "Número de modelo": "Número de pieza"
+    },
+    "default_values": {}
+  },
+  "MCO412401": {
+    "parsed_attributes": {
+      "Número de modelo": "Número de pieza"
+    },
+    "default_values": {}
+  },
+  "MCO8937": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Tipo de flauta": "Dulce"
+    }
+  },
+  "MCO372121": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Herramientas eléctricas recomendadas": "Taladro"
     }
   }
 }

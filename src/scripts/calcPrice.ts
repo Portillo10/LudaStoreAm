@@ -34,7 +34,7 @@ import { input } from "../utils/inputHelper";
 
   // await input("pres any.")
 
-  const product = await getProductBySku("B0CYLXWXJ1");
+  const product = await getProductBySku("B0D3KLZ423");
   if (product && usd_rate) {
     const price = await calculatePrice(product, token, usd_rate);
     console.log(price);

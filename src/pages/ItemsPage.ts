@@ -76,7 +76,7 @@ export class ItemsPage extends BasePage {
       productLinks.push(...newLinks);
       nextUrl = await this.getNextPageLink();
       console.log(`${productLinks.length} productos extraídos`);
-      if (productLinks.length >= 1000) {
+      if (productLinks.length >= 1500) {
         break;
       }
     }
@@ -89,14 +89,13 @@ export class ItemsPage extends BasePage {
       await this.navigateTo(task.currentUrl);
       let newLinks = await this.getLinks();
       const currentUrl = await this.getNextPageLink();
+      task.loadLinks(newLinks);
       await task.setCurrentUrl(currentUrl)
-      console.log(`${newLinks.length} productos extraídos`);
-      if (newLinks.length >= 10) {
-        newLinks.length = 5;
-        task.loadLinks(newLinks);
+      console.log(`${task.linkList.length} productos extraídos`);
+      if (task.linkList.length >= 1500) {
+        await task.setCurrentUrl(null)
         break;
       }
     }
-
   }
 }

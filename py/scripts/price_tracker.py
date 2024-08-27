@@ -17,6 +17,7 @@ from utils.scrapingBeeClient import send_request
 from services.put_price import put_price, pause_post
 from services.forex import get_usd_cop_rate
 from models.item import get_items, get_item_by_sku, update_price, set_revised_state
+from models.postedLink import get_links, revert_update, updated_state
 from db.database import connect_db
 from services.auth import refresh_token
 from utils.helpers import get_json_content, get_random_user_agent, get_amazon_cookies, convert_to_price, save_json
@@ -103,7 +104,7 @@ def getPriceFromLocator(element: Locator, sku):
     return price
 
 def trackPrices_v2(url, browser, usd_rate, token):
-    limit = 1600
+    limit = 1700
     count = 0
     cont = True
     context = browser.new_context()
@@ -158,21 +159,29 @@ connect_db()
 # products = get_items()
 
 # trackPrices(products)
-links = get_json_content("update_links.json")
+links = list(get_links())
 
 with sync_playwright() as playwright:
     browser: Browser = playwright.chromium.launch(headless=True)
     usd_rate = get_usd_cop_rate(browser)
-    token = refresh_token()
     try:
         for link in links[:]:
-            trackPrices_v2(link, browser, usd_rate, token)
-            links.remove(link)
-            save_json(links, "update_links.json")
-    except:
+            token = refresh_token()
+            print(link)
+            try:
+                trackPrices_v2(link["link"], browser, usd_rate, token)
+                updated_state(link["_id"])
+            except Exception as err:
+                print(f"error extrayendo el link: {link["link"]}")
+                print(err)
+            # links.remove(link)
+            # save_json(links, "update_links.json")
+    except Exception as error:
+        print(error)
         pass
     finally:
         browser.close()
+        revert_update()
 
 # baseUrl = "https://www.amazon.com/s?i=beauty&rh=n%3A7792268011%2Cp_85%3A2470955011%2Cp_72%3A1248873011&dc&fs=true&language=es&ds=v1%3ABS7YatqJUl6VsyVHU2w5jtt9G5KZlAR35mXvR4TlkOo&qid=1720219823&rnid=1248871011&ref=sr_nr_p_72_1"
 

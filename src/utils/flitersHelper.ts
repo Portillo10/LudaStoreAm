@@ -23,6 +23,22 @@ function cleanWord(word: string) {
   return cleaned;
 }
 
+export const isForbbidenWord = (word: string) => {
+  const lowerTitle = word.toLowerCase();
+  const forbbidenWords: any[] = filterList["forbidden_words"];
+
+  for (const forbbidenWord of forbbidenWords) {
+    const regex = new RegExp(`(^|\\s)${forbbidenWord}(\\s|$)`);
+
+    if (regex.test(lowerTitle)) {
+      // console.log(`${title} - ${forbiddenProduct}`);
+      return true;
+    }
+  }
+
+  return false
+}
+
 export const isForbiddenProduct = (title: string) => {
   const lowerTitle = title.toLowerCase();
   const forbiddenProducts: any[] = filterList["forbidden_products"];

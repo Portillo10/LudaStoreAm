@@ -5,6 +5,7 @@ export interface link {
     _id?: ObjectId;
     link: string | null;
     category_id: string | null;
+    updated: boolean
 }
 
 export const insertPostedLink = async (link: link) => {

@@ -18,10 +18,13 @@ export interface ProductItem {
   }[];
   attributes: Attributes;
   state: string;
+  condition: "new" | "refurbished "
 }
 
 export const createProduct = async (product: ProductItem) => {
   const db = getDatabase();
+  const productExist = await getProductBySku(product.sku || "");
+  if (productExist) return null;
   const result = await db.collection("products").insertOne(product);
   return result.insertedId;
 };
@@ -86,7 +89,7 @@ export const deleteById = async (ids: ObjectId[]) => {
   const db = getDatabase();
   const collection = db.collection<ProductItem>("products");
   const result = await collection.deleteMany({ _id: { $in: ids } });
-  return result.deletedCount
+  return result.deletedCount;
 };
 
 export async function getGroupedRecordsBySku(): Promise<any[][]> {
@@ -119,3 +122,46 @@ export async function getGroupedRecordsBySku(): Promise<any[][]> {
     throw error; // Propaga el error para que pueda ser manejado por el llamador
   }
 }
+
+export const getBadWeight = async (category: string) => {
+  const db = getDatabase();
+  const collection = db.collection<ProductItem>("products");
+  const result = await collection
+    .find({ category_id: category, weight: "1 lb" })
+    .toArray();
+  return result;
+};
+
+export const updateProduct = async (data: ProductItem, id: ObjectId) => {
+  const db = getDatabase();
+  const collection = db.collection<ProductItem>("products");
+  const result = await collection.updateOne(
+    { _id: id },
+    {
+      $set: {
+        ...data,
+      },
+    }
+  );
+
+  return result.modifiedCount > 0;
+};
+
+export const getByCategories = async (categories: string[]) => {
+  const db = getDatabase();
+  const collection = db.collection<ProductItem>("products");
+  const result = await collection
+    .find({ category_id: { $in: categories }, item_id: { $ne: null } })
+    .toArray();
+  return result;
+};
+
+export const setError = async (sku: string) => {
+  const db = getDatabase();
+  const collection = db.collection<ProductItem>("products");
+  const result = await collection.updateOne(
+    { sku },
+    { $set: { state: "error", item_id: null } }
+  );
+  return result.modifiedCount > 0
+};

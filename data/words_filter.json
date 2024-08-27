@@ -59,6 +59,8 @@
     "reacondicionado",
     "soundcore"
   ],
+
+
   "forbidden_products": [
     "kraus\u00ae",
     "kenzo jungle",
@@ -455,7 +457,18 @@
     "linpa tws",
     "mmobiel",
     "merry gafas",
-    "refurbished"
+    "refurbished",
+    "neutrogena",
+    "MAC Studio",
+    "Covergirl Outlast",
+    "Sane",
+    "Thayers",
+    "Laundryou",
+    "CeraVe",
+    "Max Factor",
+    "Nivea",
+    "Stetson",
+    "Lumify Eye"
   ],
   "allow_brands": {
      "adobe": "compatible con" ,
@@ -540,7 +553,6 @@
      "minoxidil": "para" ,
      "minecraft": "para" ,
      "monster": "compatible con" ,
-     "neutrogena": "para" ,
      "new balance": "para" ,
      "nioxin": "para" ,
      "norwii": "compatible con" ,
@@ -590,6 +602,7 @@
      "xbox": "compatible con" ,
      "xiaomi": "compatible con" ,
      "yves saint laurent": "para" ,
-     "ziplock": "para" 
+     "ziplock": "para",
+     "l'oreal paris": "compatible con"
   }
 }

@@ -17,7 +17,6 @@ import { postProduct } from "../services/pubs";
 import { connectToDatabase } from "../db/database";
 import { createItem, Item } from "../db/models/Item";
 import { input } from "../utils/inputHelper";
-import { deleteLink, insertLinks } from "../db/models/link";
 import {
   createProduct,
   ProductItem,
@@ -30,6 +29,7 @@ import { insertPostedLink, postedLinkExist } from "../db/models/postedLink";
 import { insertError } from "../db/models/error";
 import { isAxiosError } from "axios";
 import { Task } from "../models/taskManager";
+import { ScrapingBeeError } from "../errors/scrapingBeeError";
 
 interface cookie {
   name: string;
@@ -44,7 +44,8 @@ interface cookie {
 
 (async () => {
   await connectToDatabase();
-  let token = await refreshAccessToken();
+  let token = await refreshAccessToken("LudaStore");
+
   if (!token) throw new Error("No fue posible obtener el token");
 
   const usdRate = await getUsdToCopRate();
@@ -52,25 +53,25 @@ interface cookie {
 
   const linkList = await readLinksFromCsv();
 
-  const defaultWeight = 3;
-
   let totalProducts = 0;
   let limit = 1500;
 
   const browser = await chromium.launch({ headless: true });
   const cookies: cookie[] = await readJSON("data/cookies.json");
 
-  const taskList = Task.getTasks(linkList)
+  const taskList = await Task.getTasks(linkList);
 
-  for (const linkElement of linkList) {
+  for (const task of taskList) {
     if (totalProducts >= limit) {
-      token = await refreshAccessToken();
+      token = await refreshAccessToken("LudaStore");
       limit += 1500;
     }
 
-    if (await postedLinkExist(linkElement.url)) {
+    if (await postedLinkExist(task.mainUrl)) {
       continue;
     }
+
+    await task.saveTask();
 
     const storageState = {
       cookies,
@@ -89,14 +90,8 @@ interface cookie {
     });
     const itemsPage = new ItemsPage(context);
 
-    
-    const url = linkElement["url"];
-    const categoryId = linkElement["category"];
-    
-    let links: any[] = [];
-    
     try {
-      links = await itemsPage.mapAllLinks(url);
+      await itemsPage.mapAllLinks2(task);
     } catch (error) {
       if (isAxiosError(error)) {
         console.log(error.response?.data);
@@ -106,15 +101,13 @@ interface cookie {
     }
     await itemsPage.descompose();
 
-    console.log("Links encontrados:", links.length);
+    console.log("Links encontrados:", task.linkList.length);
 
-    totalProducts += links.length;
-
-    await insertLinks(links, categoryId);
+    totalProducts += task.linkList.length;
 
     let postedProducts = 0;
     let errorsCount = 0;
-    let maxWorkers = 4;
+    let maxWorkers = 3;
 
     const contextPool: BrowserContext[] = [];
 
@@ -128,41 +121,12 @@ interface cookie {
       );
     }
 
-    await insertPostedLink({ link: url, category_id: categoryId });
-
-    const scrapeItem = async (link: string): Promise<Product> => {
+    const scrapeItem = async (link: string): Promise<Product | null> => {
       const sku = extractSKUFromUrl(link);
       if (sku) {
         const item = await getProductBySku(sku);
         if (item) {
-          if (item.state == "error") {
-            const { _id, ...itemData } = item;
-            try {
-              const productData = new Product({
-                title: "",
-                price: 0,
-                description: "",
-                sku: "",
-              });
-              productData.setData(itemData);
-              const { product_id, ml_price } = await postProduct(
-                productData,
-                token,
-                usdRate
-              );
-
-              await activateProduct(sku, product_id);
-              await deleteLink(link);
-              postedProducts++;
-              return productData;
-            } catch (error) {
-              errorsCount++;
-            }
-          } else if (item.state == "active") {
-            console.log("producto duplicado");
-            return new Product({});
-          }
-          // return new Product()
+          return null;
         }
       }
 
@@ -185,44 +149,50 @@ interface cookie {
           contextPool.push(newContext);
           if (!pageData.checkWeight()) {
             console.log("Setting default weight");
-            pageData.setWeight(`${defaultWeight} lb`);
+            pageData.setDefaultWeight(`${task.weight} lb`);
           }
-          await pageData.setCategoryId(categoryId);
+          await pageData.setCategoryId(task.category_id || "");
           pageData.correctTittle();
           pageData.correctDescription();
+          // console.log(pageData.getItemInfo());
+          // await input("Presione enter")
+          let data: ProductItem;
           try {
-            const { product_id, ml_price } = await postProduct(
-              pageData,
-              token,
-              usdRate
-            );
-            const data: ProductItem = {
+            // const { product_id, ml_price } = await postProduct(
+            //   pageData,
+            //   token,
+            //   usdRate
+            // );
+            data = {
               ...pageData.getItemInfo(),
-              item_id: product_id,
-              state: "active",
+              item_id: null,
+              state: "pending",
             };
 
-            await createProduct(data);
-            await deleteLink(link);
             postedProducts++;
             console.log(
-              `${postedProducts} publicados de ${links.length} - ${errorsCount} productos omitidos`
+              `${postedProducts} publicados de ${task.linkList.length} - ${errorsCount} productos omitidos`
             );
           } catch (error) {
-            const data: ProductItem = {
+            data = {
               ...pageData.getItemInfo(),
               item_id: null,
               state: "error",
             };
-
-            await createProduct(data);
+            errorsCount++;
           }
-          await deleteLink(link);
+
+          await createProduct(data);
+          await task.deleteLinkElement(link);
           return pageData;
         } catch (error) {
           if (newContext) contextPool.unshift(newContext);
           if (itemPage) {
             itemPage.descompose();
+          }
+
+          if (error instanceof ScrapingBeeError) {
+            process.exit(0);
           }
           if (
             error instanceof Error &&
@@ -236,23 +206,27 @@ interface cookie {
             await insertError({
               errorMsg: error instanceof Error ? error.message : "",
               link,
-              category_id: categoryId,
+              category_id: task.category_id || "",
               errorTime: new Date(),
             });
           } catch (error) {}
           errorsCount++;
+          await task.deleteLinkElement(link);
           throw error;
         }
       }
       if (newContext) {
         contextPool.push(newContext);
       }
-
       throw new Error("Max retries reached");
     };
 
     try {
-      await runTasksVoid<string, Product>(links, scrapeItem, maxWorkers);
+      await runTasksVoid<string, Product>(
+        task.linkList,
+        scrapeItem,
+        maxWorkers
+      );
     } catch (error) {
       console.error("Error durante la ejecución de tareas:", error);
     } finally {
@@ -260,7 +234,14 @@ interface cookie {
         await context.close();
       }
     }
-    console.log(`${postedProducts} publicados de ${links.length}`);
+
+    await insertPostedLink({
+      link: task.mainUrl,
+      category_id: task.category_id,
+      updated: false,
+    });
+    await task.endTask();
+    console.log(`${postedProducts} publicados de ${task.linkList.length}`);
   }
   await browser.close();
 
