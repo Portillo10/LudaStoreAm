@@ -18,7 +18,8 @@
     "calc-price": "ts-node src/scripts/calcPrice.ts",
     "fix-weight": "ts-node src/scripts/fixWeight.ts",
     "clean": "ts-node src/scripts/cleanPubs.ts",
-    "set-products":"ts-node src/scripts/setProducts.ts"
+    "set-products":"ts-node src/scripts/setProducts.ts",
+    "scrape-prod":"node dist/scripts/scraper.js"
   },
   "keywords": [],
   "author": "",

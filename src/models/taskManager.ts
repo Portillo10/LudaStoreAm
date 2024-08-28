@@ -5,6 +5,7 @@ import {
   deleteLink,
   deleteTask,
   updateCurrentUrl,
+  insertSku,
 } from "../db/models/task";
 
 export class Task {
@@ -14,12 +15,14 @@ export class Task {
   public currentUrl: string | null;
   public type: "scraper" | "tracker";
   public weight: string;
+  public skuList: string[]
 
   constructor(
     url: string,
     productUrls: string[],
     category: string,
-    weight: string
+    weight: string,
+    skuList: string[]
   ) {
     this.mainUrl = url;
     this.linkList = productUrls;
@@ -27,6 +30,7 @@ export class Task {
     this.currentUrl = this.mainUrl;
     this.type = category ? "scraper" : "tracker";
     this.weight = weight;
+    this.skuList = skuList
   }
 
   async saveTask() {
@@ -40,7 +44,7 @@ export class Task {
     linkList: { url: string; category: string; weight: string }[]
   ) {
     const taskList = linkList.map(
-      (element) => new Task(element.url, [], element.category, element.weight)
+      (element) => new Task(element.url, [], element.category, element.weight, [])
     );
     const lastTask = await this.getLastTask();
     if (lastTask) {
@@ -61,7 +65,7 @@ export class Task {
 
   static async getLastTask(): Promise<Task | null> {
     const lastTask = await getTask();
-    const task = new Task("", [], "", "1");
+    const task = new Task("", [], "", "1", []);
     if (lastTask) {
       task.setTask(lastTask);
       return task;
@@ -90,5 +94,10 @@ export class Task {
   async setCurrentUrl(url: string | null) {
     this.currentUrl = url;
     await updateCurrentUrl(url);
+  }
+
+  async addSku(sku:string) {
+    this.skuList.push(sku)
+    return await insertSku(sku)
   }
 }

@@ -61,6 +61,7 @@ interface cookie {
 
   const taskList = await Task.getTasks(linkList);
 
+
   for (const task of taskList) {
     // if (totalProducts >= limit) {
     //   token = await refreshAccessToken("LudaStore");
@@ -107,7 +108,7 @@ interface cookie {
 
     let postedProducts = 0;
     let errorsCount = 0;
-    let maxWorkers = 3;
+    let maxWorkers = 4;
 
     const contextPool: BrowserContext[] = [];
 
@@ -168,7 +169,6 @@ interface cookie {
               item_id: null,
               state: "pending",
             };
-
             postedProducts++;
             console.log(
               `${postedProducts} publicados de ${task.linkList.length} - ${errorsCount} productos omitidos`
@@ -183,6 +183,7 @@ interface cookie {
           }
 
           await createProduct(data);
+          await task.addSku(data.sku || "");
           await task.deleteLinkElement(link);
           return pageData;
         } catch (error) {
@@ -239,6 +240,7 @@ interface cookie {
       link: task.mainUrl,
       category_id: task.category_id,
       updated: false,
+      skuList: task.skuList,
     });
     await task.endTask();
     console.log(`${postedProducts} publicados de ${task.linkList.length}`);

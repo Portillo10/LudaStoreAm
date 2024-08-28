@@ -223,33 +223,32 @@ export class ItemPage extends BasePage {
   }
 
   async getPageData() {
+    if (!this.currentUrl)
+      throw new Error("No se pudo obtener la url de la página.");
+    const sku = extractSKUFromUrl(this.currentUrl);
+
     const title = this.cheerio?.getTitle();
     if (!title) {
       // await input("Title not found, press any key")
-      throw new Error("Title not found");
+      throw new Error(`Title not found for ${sku}`);
     }
 
     const price = this.cheerio?.getPrice();
     if (!price) {
       // await input("Press any key")
-      throw new Error("Price not found");
+      throw new Error(`Price not found for ${sku}`);
     }
 
     const description = this.cheerio?.getDescription();
     // if (!description) throw new Error("Description not found");
 
     const details = this.cheerio?.getDetails();
-    if (!details) throw new Error("Details not found");
+    if (!details) throw new Error(`Details not found for ${sku}`);
 
     const specs = this.cheerio?.getSpecs();
-    if (!specs) throw new Error("Specs not found");
-
-    if (!this.currentUrl)
-      throw new Error("No se pudo obtener la url de la página.");
+    if (!specs) throw new Error(`Specs not found for: ${sku}`);
 
     const itemCondition = this.cheerio?.getItemCondition();
-
-    const sku = extractSKUFromUrl(this.currentUrl);
 
     const product = new Product({
       title,

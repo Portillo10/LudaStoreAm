@@ -48,7 +48,7 @@ export class ItemsPage extends BasePage {
       }
     );
 
-    console.log(linksList?.length, "productos encontrados");
+    console.log(linksList?.length, "productos encontrados en la página");
     const result: string[] = [];
     if (!linksList) return [];
 
@@ -58,11 +58,11 @@ export class ItemsPage extends BasePage {
       const product = await getProductBySku(sku || "");
       if (product) {
         count++
-      } else if (!isForbiddenProduct(item.title)) {
+      } else if (!isForbiddenProduct(item.title) && !result.includes(`https://www.amazon.com/-/es/dp/${item.sku}`)) {
         result.push(`https://www.amazon.com/-/es/dp/${item.sku}`);
       }
     }
-    console.log(`${count} repetdidos`);
+    console.log(`${count} repetidos`);
     
     return result;
   }

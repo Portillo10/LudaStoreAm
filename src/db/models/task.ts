@@ -59,3 +59,10 @@ export const updateCurrentUrl = async (url: string | null) => {
   );
   return result.modifiedCount > 0
 };
+
+export const insertSku = async (sku: string) => {
+  const collection = getCollection();
+  const id = (await collection.find().toArray())[0]?._id;
+  const result = await collection.updateOne({_id:id}, {$push:{skuList:sku}})
+  return result.modifiedCount > 0
+}
