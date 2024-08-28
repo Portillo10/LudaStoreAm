@@ -187,6 +187,7 @@ interface cookie {
           await task.deleteLinkElement(link);
           return pageData;
         } catch (error) {
+
           if (newContext) contextPool.unshift(newContext);
           if (itemPage) {
             itemPage.descompose();

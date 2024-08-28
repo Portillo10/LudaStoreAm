@@ -99,7 +99,9 @@ export const runTasksVoid = async <T, R>(
     try {
       await taskFunction(element);
     } catch (error) {
-      console.error(`Error executing task: ${error}`);
+      if (error instanceof Error){
+        console.error(`Error executing task: ${error.message}`);
+      }
     }
   };
 

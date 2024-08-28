@@ -60,7 +60,8 @@ export class Task {
     this.currentUrl = data.currentUrl;
     this.category_id = data.category_id;
     this.type = data.type;
-    this.weight = data.weight
+    this.weight = data.weight;
+    this.skuList = data.skuList;
   }
 
   static async getLastTask(): Promise<Task | null> {

@@ -1,13 +1,20 @@
 import { ObjectId } from "mongodb";
 import { getDatabase } from "../database";
 
+
+type Item = {
+  sku: string | null;
+  item_id:string | null
+}
+
 type Store = {
   client_id: string;
   client_secret: string;
   refresh_token: string;
   user_id: string;
   alias: string;
-  products: string[];
+  products: Item[];
+
 };
 
 const getCollection = () => {
@@ -34,7 +41,7 @@ export const refreshStoreToken = async (
   return result.modifiedCount > 0;
 };
 
-export const setProducts = async (skuList: string[], id: ObjectId) => {
+export const setProducts = async (skuList: Item[], id: ObjectId) => {
   const collection = getCollection();
   const result = await collection.updateOne(
     { _id: id },

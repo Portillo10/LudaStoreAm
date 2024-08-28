@@ -40,6 +40,7 @@ class Task {
         this.category_id = data.category_id;
         this.type = data.type;
         this.weight = data.weight;
+        this.skuList = data.skuList;
     }
     static async getLastTask() {
         const lastTask = await (0, task_1.getTask)();

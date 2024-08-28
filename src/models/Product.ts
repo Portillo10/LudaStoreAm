@@ -112,11 +112,13 @@ export class Product {
       }
       if (
         !result.hasOwnProperty(rightKey) &&
+        details[key] &&
         details[key].length < 200 &&
         !isForbbidenWord(details[key])
       ) {
         if (
           rightKey.toLocaleLowerCase().includes("marca") &&
+          details[key] &&
           (isForbiddenProduct(details[key]) || isAllowBrand(details[key]))
         ) {
           result[rightKey] = "Producto genérico";
@@ -138,6 +140,7 @@ export class Product {
       ) {
         if (
           rightKey.toLocaleLowerCase().includes("marca") &&
+          details[key] &&
           (isForbiddenProduct(specs[key]) || isAllowBrand(details[key]))
         ) {
           result[rightKey] = "Producto genérico";

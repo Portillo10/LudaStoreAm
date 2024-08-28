@@ -87,7 +87,9 @@ const runTasksVoid = async (array, taskFunction, maxWorkers) => {
             await taskFunction(element);
         }
         catch (error) {
-            console.error(`Error executing task: ${error}`);
+            if (error instanceof Error) {
+                console.error(`Error executing task: ${error.message}`);
+            }
         }
     };
     for (const element of array) {

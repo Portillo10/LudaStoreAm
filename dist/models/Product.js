@@ -84,9 +84,11 @@ class Product {
                 rightKey = parsedKeys[rightKey];
             }
             if (!result.hasOwnProperty(rightKey) &&
+                details[key] &&
                 details[key].length < 200 &&
                 !(0, flitersHelper_1.isForbbidenWord)(details[key])) {
                 if (rightKey.toLocaleLowerCase().includes("marca") &&
+                    details[key] &&
                     ((0, flitersHelper_1.isForbiddenProduct)(details[key]) || (0, flitersHelper_1.isAllowBrand)(details[key]))) {
                     result[rightKey] = "Producto genérico";
                 }
@@ -104,6 +106,7 @@ class Product {
                 specs[key].length < 200 &&
                 !(0, flitersHelper_1.isForbbidenWord)(specs[key])) {
                 if (rightKey.toLocaleLowerCase().includes("marca") &&
+                    details[key] &&
                     ((0, flitersHelper_1.isForbiddenProduct)(specs[key]) || (0, flitersHelper_1.isAllowBrand)(details[key]))) {
                     result[rightKey] = "Producto genérico";
                 }
