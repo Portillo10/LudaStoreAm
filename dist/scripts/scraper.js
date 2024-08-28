@@ -25,7 +25,7 @@ const scrapingBeeError_1 = require("../errors/scrapingBeeError");
     const linkList = await (0, csvHelper_1.readLinksFromCsv)();
     let totalProducts = 0;
     let limit = 1500;
-    const browser = await playwright_1.chromium.launch({ headless: false });
+    const browser = await playwright_1.chromium.launch({ headless: true });
     const cookies = await (0, jsonHelper_1.readJSON)("data/cookies.json");
     const taskList = await taskManager_1.Task.getTasks(linkList);
     for (const task of taskList) {
