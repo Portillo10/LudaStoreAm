@@ -1,7 +1,8 @@
-import { ObjectId } from "mongodb";
+import { Filter, FindOptions, ObjectId, UpdateFilter } from "mongodb";
 import { getDatabase } from "../database";
 import { Attributes } from "../../types";
 import { Product } from "../../models/Product";
+import { addProduct } from "./store";
 
 export interface ProductItem {
   _id?: ObjectId;
@@ -18,15 +19,42 @@ export interface ProductItem {
   }[];
   attributes: Attributes;
   state: string;
-  condition: "new" | "refurbished "
+  condition: "new" | "refurbished";
 }
 
-export const createProduct = async (product: ProductItem) => {
+export const getCollection = () => {
   const db = getDatabase();
+  const collection = db.collection<ProductItem>("products");
+  return collection;
+};
+
+export const createProduct = async (
+  product: ProductItem
+  // storeId: ObjectId
+) => {
+  const collection = getCollection();
   const productExist = await getProductBySku(product.sku || "");
   if (productExist) return null;
-  const result = await db.collection("products").insertOne(product);
-  return result.insertedId;
+  const result = await collection.insertOne(product);
+  // if (result) {
+  //   const added = await addProduct(storeId, {
+  //     sku: product.sku,
+  //     item_id: product.item_id,
+  //   });
+  //   return result && added;
+  // }
+  return false;
+};
+
+export const getProduct = async (
+  filter: Filter<ProductItem>,
+  findOptions: FindOptions<ProductItem>
+) => {
+  const db = getDatabase();
+  const item = await db
+    .collection<ProductItem>("products")
+    .findOne(filter, findOptions);
+  return item;
 };
 
 export const getProductBySku = async (sku: string) => {
@@ -44,11 +72,16 @@ export const getErrorProducts = async () => {
   return items;
 };
 
-export const activateProduct = async (sku: string, item_id: string) => {
+export const activateProduct = async (
+  sku: string,
+  item_id: string,
+  storeId: ObjectId
+) => {
   const db = getDatabase();
   const result = await db
     .collection<ProductItem>("products")
     .updateOne({ sku }, { $set: { state: "active", item_id } });
+  await addProduct(storeId, { sku, item_id });
   return result.modifiedCount > 0;
 };
 
@@ -85,7 +118,7 @@ export const deleteByItemId = async (item_id: string) => {
   return result.deletedCount > 0;
 };
 
-export const deleteById = async (ids: ObjectId[]) => {
+export const deleteByIds = async (ids: ObjectId[]) => {
   const db = getDatabase();
   const collection = db.collection<ProductItem>("products");
   const result = await collection.deleteMany({ _id: { $in: ids } });
@@ -119,7 +152,7 @@ export async function getGroupedRecordsBySku(): Promise<any[][]> {
     return groupedRecords;
   } catch (error) {
     console.error("Error fetching grouped records:", error);
-    throw error; // Propaga el error para que pueda ser manejado por el llamador
+    throw error;
   }
 }
 
@@ -132,18 +165,12 @@ export const getBadWeight = async (category: string) => {
   return result;
 };
 
-export const updateProduct = async (data: ProductItem, id: ObjectId) => {
-  const db = getDatabase();
-  const collection = db.collection<ProductItem>("products");
-  const result = await collection.updateOne(
-    { _id: id },
-    {
-      $set: {
-        ...data,
-      },
-    }
-  );
-
+export const updateProduct = async (
+  filter: Filter<ProductItem>,
+  update: UpdateFilter<ProductItem>
+) => {
+  const collection = getCollection();
+  const result = await collection.updateOne(filter, update);
   return result.modifiedCount > 0;
 };
 
@@ -156,6 +183,50 @@ export const getByCategories = async (categories: string[]) => {
   return result;
 };
 
+export const getByCategoriesAndState = async (
+  categories: string[],
+  state: string
+) => {
+  const db = getDatabase();
+  const collection = db.collection<ProductItem>("products");
+  const result = await collection
+    .find({
+      category_id: { $in: categories },
+      item_id: { $ne: null },
+      state,
+    })
+    .toArray();
+  return result;
+};
+
+export const getByCategorie = async (categories: string[]) => {
+  const db = getDatabase();
+  const collection = db.collection<ProductItem>("products");
+  const result = await collection
+    .find(
+      {
+        category_id: { $in: categories },
+        state: { $nin: ["pending", "omited"] },
+      },
+      { projection: { pictures: 0, attributes: 0, description: 0 } }
+    )
+    .toArray();
+  return result;
+};
+
+export const getRefurbishedByCategories = async (categories: string[]) => {
+  const db = getDatabase();
+  const collection = db.collection<ProductItem>("products");
+  const result = await collection
+    .find({
+      category_id: { $in: categories },
+      item_id: { $ne: null },
+      condition: "refurbished",
+    })
+    .toArray();
+  return result;
+};
+
 export const setError = async (sku: string) => {
   const db = getDatabase();
   const collection = db.collection<ProductItem>("products");
@@ -163,5 +234,100 @@ export const setError = async (sku: string) => {
     { sku },
     { $set: { state: "error", item_id: null } }
   );
-  return result.modifiedCount > 0
+  return result.modifiedCount > 0;
+};
+
+export const updateItemCondition = async (
+  condition: "new" | "refurbished",
+  _id: ObjectId
+) => {
+  const collection = getCollection();
+  const result = await collection.updateOne({ _id }, { $set: { condition } });
+  return result.modifiedCount > 0;
+};
+
+export const deleteItemId = async (_id: ObjectId) => {
+  const collection = getCollection();
+  const result = await collection.updateOne(
+    { _id },
+    { $set: { state: "deleted" } }
+  );
+  return result.matchedCount > 0;
+};
+
+export const setPrice = async (_id: ObjectId, price: number) => {
+  const collection = getCollection();
+  const result = await collection.updateOne({ _id }, { $set: { price } });
+  return result.modifiedCount > 0;
+};
+
+export const deleteProductById = async (_id: ObjectId) => {
+  const collection = getCollection();
+  const result = await collection.deleteOne({ _id });
+  return result.deletedCount > 0;
+};
+
+export const getProducts = async (
+  filters: Filter<ProductItem>,
+  projection: any
+) => {
+  const collection = getCollection();
+  const result = await collection
+    .find(filters, {
+      projection,
+    })
+    .toArray();
+  return result;
+};
+
+export const getProductsBySkuList = async (skuList: string[]) => {
+  const result = await getProducts(
+    { sku: { $in: skuList } },
+    {
+      pictures: 0,
+      description: 0,
+      attributes: 0,
+    }
+  );
+  return result;
+};
+
+export const getProductsBySku = async (sku: string) => {
+  const collection = getCollection();
+  const result = await collection.find({ sku }).toArray();
+  return result;
+};
+
+export const getPendingProducts = async () => {
+  const collection = getCollection();
+  const result = await collection
+    .find({ state: "pending", condition: { $ne: "refurbished" } })
+    .toArray();
+  return result;
+};
+
+export const setDescription = async (_id: ObjectId, description: string) => {
+  const collection = getCollection();
+  const result = await collection.updateOne({ _id }, { $set: { description } });
+  return result.modifiedCount > 0;
+};
+
+export const getProductByItemId = async (item_id: string) => {
+  const collection = getCollection();
+  const result = await collection.findOne(
+    { item_id },
+    {
+      projection: {
+        _id: 0,
+        pictures: 0,
+        attributes: 0,
+        description: 0,
+        title: 0,
+        price: 0,
+        sku: 0,
+        weight: 0,
+      },
+    }
+  );
+  return result;
 };

@@ -8,6 +8,7 @@ import {
 } from "../utils/helpers";
 import { Cheerio } from "../models/CheerioModel";
 import { input } from "../utils/inputHelper";
+import { getProductBySku } from "../db/models/product";
 
 export class ItemPage extends BasePage {
   async getTitle() {
@@ -226,6 +227,12 @@ export class ItemPage extends BasePage {
     if (!this.currentUrl)
       throw new Error("No se pudo obtener la url de la página.");
     const sku = extractSKUFromUrl(this.currentUrl);
+
+    const productExist = await getProductBySku(sku || "")
+
+    if (productExist){
+      throw new Error("Se coló un producto duplicado")
+    }
 
     const title = this.cheerio?.getTitle();
     if (!title) {

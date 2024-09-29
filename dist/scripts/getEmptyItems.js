@@ -18,7 +18,7 @@ const helpers_1 = require("../utils/helpers");
     let total = 0;
     try {
         while (currentResults) {
-            const { results, scroll_id } = await (0, mlItems_1.getItemsByScrollId)(scrollId, token);
+            const { results, scroll_id } = await (0, mlItems_1.getItemsByScrollId)(scrollId, token, "");
             if (scroll_id) {
                 currentResults = results;
                 scrollId = scroll_id;

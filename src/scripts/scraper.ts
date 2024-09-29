@@ -30,6 +30,7 @@ import { insertError } from "../db/models/error";
 import { isAxiosError } from "axios";
 import { Task } from "../models/taskManager";
 import { ScrapingBeeError } from "../errors/scrapingBeeError";
+import { getStoreByAlias } from "../db/models/store";
 
 interface cookie {
   name: string;
@@ -44,12 +45,6 @@ interface cookie {
 
 (async () => {
   await connectToDatabase();
-  // let token = await refreshAccessToken("LudaStore");
-
-  // if (!token) throw new Error("No fue posible obtener el token");
-
-  // const usdRate = await getUsdToCopRate();
-  // if (!usdRate) throw new Error("No fue posible obtener el precio del dolar");
 
   const linkList = await readLinksFromCsv();
 
@@ -60,14 +55,9 @@ interface cookie {
   const cookies: cookie[] = await readJSON("data/cookies.json");
 
   const taskList = await Task.getTasks(linkList);
-
+  // const taskList: any[] = ["a"];
 
   for (const task of taskList) {
-    // if (totalProducts >= limit) {
-    //   token = await refreshAccessToken("LudaStore");
-    //   limit += 1500;
-    // }
-
     if (await postedLinkExist(task.mainUrl)) {
       continue;
     }
@@ -108,7 +98,7 @@ interface cookie {
 
     let postedProducts = 0;
     let errorsCount = 0;
-    let maxWorkers = 4;
+    let maxWorkers = 5;
 
     const contextPool: BrowserContext[] = [];
 
@@ -121,13 +111,18 @@ interface cookie {
         })
       );
     }
+    // const skuList: string[] = await readJSON("data/toScrape.json");
 
     const scrapeItem = async (link: string): Promise<Product | null> => {
       const sku = extractSKUFromUrl(link);
+
+      if (sku == "B08CS1X53V") {
+        return null;
+      }
       if (sku) {
         const item = await getProductBySku(sku);
         if (item) {
-          return null;
+          throw new Error("Producto duplicado");
         }
       }
 
@@ -155,24 +150,14 @@ interface cookie {
           await pageData.setCategoryId(task.category_id || "");
           pageData.correctTittle();
           pageData.correctDescription();
-          // console.log(pageData.getItemInfo());
-          // await input("Presione enter")
           let data: ProductItem;
           try {
-            // const { product_id, ml_price } = await postProduct(
-            //   pageData,
-            //   token,
-            //   usdRate
-            // );
             data = {
               ...pageData.getItemInfo(),
               item_id: null,
-              state: "pending",
+              state: "publish",
             };
             postedProducts++;
-            console.log(
-              `${postedProducts} publicados de ${task.linkList.length} - ${errorsCount} productos omitidos`
-            );
           } catch (error) {
             data = {
               ...pageData.getItemInfo(),
@@ -183,11 +168,14 @@ interface cookie {
           }
 
           await createProduct(data);
+          console.log(
+            `${sku} ${postedProducts} scrapeados de ${task.linkList.length}, ${errorsCount} omitidos`
+          );
+
           await task.addSku(data.sku || "");
           await task.deleteLinkElement(link);
           return pageData;
         } catch (error) {
-
           if (newContext) contextPool.unshift(newContext);
           if (itemPage) {
             itemPage.descompose();
@@ -242,6 +230,7 @@ interface cookie {
       category_id: task.category_id,
       updated: false,
       skuList: task.skuList,
+      lastUpdate: new Date(),
     });
     await task.endTask();
     console.log(`${postedProducts} publicados de ${task.linkList.length}`);

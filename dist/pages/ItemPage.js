@@ -4,6 +4,7 @@ exports.ItemPage = void 0;
 const BasePage_1 = require("./BasePage");
 const Product_1 = require("../models/Product");
 const helpers_1 = require("../utils/helpers");
+const product_1 = require("../db/models/product");
 class ItemPage extends BasePage_1.BasePage {
     async getTitle() {
         const title = await (await this.selectOne(["#productTitle"]))?.textContent();
@@ -183,6 +184,10 @@ class ItemPage extends BasePage_1.BasePage {
         if (!this.currentUrl)
             throw new Error("No se pudo obtener la url de la página.");
         const sku = (0, helpers_1.extractSKUFromUrl)(this.currentUrl);
+        const productExist = await (0, product_1.getProductBySku)(sku || "");
+        if (productExist) {
+            throw new Error("Se coló un producto duplicado");
+        }
         const title = this.cheerio?.getTitle();
         if (!title) {
             // await input("Title not found, press any key")

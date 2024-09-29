@@ -36,8 +36,8 @@ export const isForbbidenWord = (word: string) => {
     }
   }
 
-  return false
-}
+  return false;
+};
 
 export const isForbiddenProduct = (title: string) => {
   const lowerTitle = title.toLowerCase();
@@ -60,7 +60,7 @@ export const cleanText = (text: string) => {
   const forbiddenWords: string[] = filterList["forbidden_words"];
 
   const regexPattern =
-    "\\b(" + forbiddenWords.join("|") + ")\\b[\\s.,!?\"'\\-]";
+    "\\b(" + forbiddenWords.join("|") + ")\\b[\\s.,!?\"'\\-]|\\d{4,}";
   const regex = new RegExp(regexPattern, "gi");
 
   finalText = text
@@ -125,4 +125,9 @@ export const isAllowBrand = (title: string) => {
     }
   }
   return false;
+};
+
+export const hasForbbidenNumbers = (text: string) => {
+  const regex = /\d{4,}/;
+  return regex.test(text);
 };

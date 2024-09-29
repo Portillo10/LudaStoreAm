@@ -10,6 +10,11 @@ const updatePrice = async (itemId, newPrice, access_token) => {
     const headers = {
         Authorization: `Bearer ${access_token}`,
     };
-    const response = await axios_1.default.put(url, { price: newPrice }, { headers });
+    try {
+        const response = await axios_1.default.put(url, { price: newPrice }, { headers });
+        console.log(`${itemId} actualizado`);
+    }
+    catch (error) {
+    }
 };
 exports.updatePrice = updatePrice;

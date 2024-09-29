@@ -6,49 +6,79 @@ import { sleep } from "../utils/helpers";
 import { fetchPageContent } from "../utils/scrapingBeeClient";
 import { saveData } from "../utils/jsonHelper";
 import { getRandomUserAgent, loadAmazonCookies } from "../utils/jsonHelper";
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse, isAxiosError } from "axios";
+import { connectToDatabase } from "../db/database";
+import { getProduct, getProducts, updateProduct } from "../db/models/product";
+import { calculatePrice } from "../services/putPrice";
+import { getStoreByAlias } from "../db/models/store";
+import { refreshAccessToken } from "../services/auth";
+import { getUsdToCopRate } from "../services/forex";
+import { updatePrice } from "../services/mlItems";
+import { input } from "../utils/inputHelper";
+import { getProducStore } from "../db/models/productStore";
 
-const baseUrl =
-  "https://www.amazon.com/-/es/s?k=maquinaria+pesada&i=industrial&rh=n%3A16310091%2Cn%3A256346011%2Cn%3A383596011%2Cp_36%3A27500-&dc&language=es&__mk_es_US=%C3%85M%C3%85%C5%BD%C3%95%C3%91";
+(async () => {
+  await connectToDatabase();
 
-const updateByUrl = async (url: string) => {
-  let currentUrl: string | null = url;
-  while (currentUrl) {
-    const content = await fetchPageContent(currentUrl);
-    if (!content) break;
-    const cheerio = new Cheerio(content);
-    const items = cheerio.getPricesAndSku();
-    currentUrl = cheerio.getNextPageLink();
-    saveData(items, "data/price_tracker.json");
-    sleep(5000);
-  }
-};
+  const store = await getStoreByAlias("LudaStore");
 
-const updateWithAxios = async (url: string) => {
-  let currentUrl: string | null = url;
-  const userAgent = await getRandomUserAgent();
-  const cookies = await loadAmazonCookies();
-  while (currentUrl) {
-    try {
-      const response = await axios.get(currentUrl, {
-        headers: { "User-Agent": userAgent },
-        params: { cookies },
-      });
-      if (!response) throw new Error("Error en la respuesta");
-      console.log(response.status);
-      if (response.status !== 200) break;
-      const cheerio: Cheerio = new Cheerio(response.data);
-      const items = cheerio.getPricesAndSku();
-      currentUrl = cheerio.getNextPageLink();
-      saveData(items, "data/price_tracker.json");
-      sleep(5000);
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        console.log(error.message);
+  let token = await refreshAccessToken(store.alias);
+  if (!token) throw new Error("Error obteniendo token de acceso");
+
+  let usdRate = await getUsdToCopRate();
+  if (!usdRate) throw new Error("Error obteniendo precio del dolar");
+
+  const products = await getProducStore({store_id:store._id})
+
+  //   const products = await getProducts({
+  //     sku: { $in: store.skuList.map((item) => item.sku) },
+  //     state: "updated",
+  //   });
+
+  //   console.log(products.length);
+
+  //   const productList = products.reduce((acc, value) => {
+
+  //   }, {});
+
+  let updated = 0;
+
+  for (const item of products) {
+    const product = await getProduct(
+      { sku: item.productSku, state: "updated" },
+      {
+        projection: {
+          pictures: 0,
+          attributes: 0,
+          description: 0,
+          title: 0,
+        },
       }
-    }
-    sleep(5000);
-  }
-};
+    );
 
-updateWithAxios(baseUrl);
+    if (product && item.item_id) {
+      console.log(item.item_id);
+
+      try {
+        const newPrice = await calculatePrice(product, token, usdRate);
+        // console.log(newPrice);
+        // console.log(item.sku);
+        await updatePrice(token, item.item_id, newPrice["unit_price"]);
+        await updateProduct(
+          { _id: product._id },
+          { $set: { state: "active" } }
+        );
+        updated++;
+        console.log(`${updated} productos actualizados`);
+      } catch (error) {
+        if (isAxiosError(error)) {
+          console.log(error.response?.data.message);
+        } else {
+          console.log(error);
+        }
+      }
+      await sleep(500);
+    }
+  }
+  process.exit(0)
+})();

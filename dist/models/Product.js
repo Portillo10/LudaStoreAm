@@ -61,7 +61,7 @@ class Product {
             const DIN = (0, helpers_1.extractDIN)(this.title);
             this.attributes["Dimensiones estándar del estéreo"] = DIN || "2 DIN";
         }
-        await this.setAttrByCategory(categoryId);
+        // await this.setAttrByCategory(categoryId);
     }
     setAttributes(details, specs) {
         const result = {};
@@ -79,6 +79,8 @@ class Product {
             "Número de pieza del fabricante": "Número de pieza",
         };
         for (const key in details) {
+            if ((0, helpers_1.hasContactInfo)(details[key]))
+                continue;
             let rightKey = key.replace(":", "");
             if (Object.keys(parsedKeys).includes(rightKey)) {
                 rightKey = parsedKeys[rightKey];
@@ -98,6 +100,10 @@ class Product {
             }
         }
         for (const key in specs) {
+            if ((0, helpers_1.hasContactInfo)(specs[key]))
+                continue;
+            if ((0, flitersHelper_1.isForbiddenProduct)(specs[key]))
+                throw new Error("Producto prohibido.");
             let rightKey = key;
             if (Object.keys(parsedKeys).includes(rightKey)) {
                 rightKey = parsedKeys[rightKey];
@@ -107,7 +113,7 @@ class Product {
                 !(0, flitersHelper_1.isForbbidenWord)(specs[key])) {
                 if (rightKey.toLocaleLowerCase().includes("marca") &&
                     details[key] &&
-                    ((0, flitersHelper_1.isForbiddenProduct)(specs[key]) || (0, flitersHelper_1.isAllowBrand)(details[key]))) {
+                    (0, flitersHelper_1.isAllowBrand)(details[key])) {
                     result[rightKey] = "Producto genérico";
                 }
                 else {
@@ -118,18 +124,22 @@ class Product {
         const { Dimensiones: dimensions } = result;
         if (!dimensions)
             throw new Error("Dimensiones no disponibles");
-        const splitedDimensions = dimensions.split("x");
-        const depth = splitedDimensions[0].split('"')[0].split(" ")[0].trim() + " pulgadas";
-        const width = splitedDimensions[1].split('"')[0].split(" ")[0].trim() + " pulgadas";
-        const height = splitedDimensions[2].split('"')[0].split(" ")[0].trim() + " pulgadas";
+        // const splitedDimensions = dimensions.split("x");
+        // const depth =
+        //   splitedDimensions[0].split('"')[0].split(" ")[0].trim() + " pulgadas";
+        // const width =
+        //   splitedDimensions[1].split('"')[0].split(" ")[0].trim() + " pulgadas";
+        // const height =
+        //   splitedDimensions[2].split('"')[0].split(" ")[0].trim() + " pulgadas";
         const newDimensions = (0, helpers_1.separateDimensionsAndWeight)(dimensions);
         this.attributes = {
             ...result,
             ...newDimensions,
+            "Dimensiones del producto": dimensions,
             SKU: this.seller_sku,
-            Largo: depth,
-            Ancho: width,
-            Alto: height,
+            // Largo: depth,
+            // Ancho: width,
+            // Alto: height,
         };
     }
     async setAttrByCategory(category_id) {
@@ -192,12 +202,11 @@ class Product {
     }
     correctDescription() {
         let bodyDescription = (0, flitersHelper_1.cleanText)(this.description);
-        bodyDescription = (0, flitersHelper_1.cutText)(bodyDescription, 50000 - 500);
+        bodyDescription = (0, flitersHelper_1.cutText)(bodyDescription, 50000 - 5000);
         const attributesDescription = [];
-        let weight = "";
         for (const attribute of Object.keys(this.attributes)) {
-            if (attribute === "Peso") {
-                weight = this.attributes[attribute];
+            if (attribute === "Peso" || attribute === "Dimensiones") {
+                continue;
             }
             attributesDescription.push(`${attribute}: ${this.attributes[attribute]}`);
         }
@@ -212,17 +221,12 @@ class Product {
 
   --- El producto se importa una vez el cliente realiza la compra
   --- Si su producto requiere confirmación de talla, color u otras características es necesario confirmar la disponibilidad  y el precio  antes de realizar la compra.
-
-  (descripción del producto en amazon)
   
-  SKU: ${this.seller_sku}
-  PESO: ${weight}
-  
-  Información adicional del producto
+  Información adicional
   ${attributesString}
 
-  Descripción del producto
-  ${(0, helpers_1.removeEmojis)(bodyDescription)}
+  Descripción
+  ${!(0, helpers_1.hasContactInfo)(bodyDescription) ? (0, helpers_1.removeEmojis)(bodyDescription) : ""}
 
   Algunos municipios no tienen cobertura por nuestro proveedor logístico, ante la cual se entregan en una oficina o corresponsal asignada.
 

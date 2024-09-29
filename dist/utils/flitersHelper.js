@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isAllowBrand = exports.cutText = exports.cleanText = exports.isForbiddenProduct = exports.isForbbidenWord = void 0;
+exports.hasForbbidenNumbers = exports.isAllowBrand = exports.cutText = exports.cleanText = exports.isForbiddenProduct = exports.isForbbidenWord = void 0;
 const jsonHelper_1 = require("../utils/jsonHelper");
 let filterList = null;
 const firstLoad = async () => {
@@ -47,7 +47,7 @@ exports.isForbiddenProduct = isForbiddenProduct;
 const cleanText = (text) => {
     let finalText = "";
     const forbiddenWords = filterList["forbidden_words"];
-    const regexPattern = "\\b(" + forbiddenWords.join("|") + ")\\b[\\s.,!?\"'\\-]";
+    const regexPattern = "\\b(" + forbiddenWords.join("|") + ")\\b[\\s.,!?\"'\\-]|\\d{4,}";
     const regex = new RegExp(regexPattern, "gi");
     finalText = text
         .replace(regex, "")
@@ -103,3 +103,8 @@ const isAllowBrand = (title) => {
     return false;
 };
 exports.isAllowBrand = isAllowBrand;
+const hasForbbidenNumbers = (text) => {
+    const regex = /\d{4,}/;
+    return regex.test(text);
+};
+exports.hasForbbidenNumbers = hasForbbidenNumbers;

@@ -32,7 +32,7 @@ import { sleep } from "../utils/helpers";
 
   try {
     while (currentResults) {
-      const { results, scroll_id } = await getItemsByScrollId(scrollId, token);
+      const { results, scroll_id } = await getItemsByScrollId(scrollId, token, "");
       if (scroll_id) {
         currentResults = results;
         scrollId = scroll_id;

@@ -3,12 +3,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.extractDIN = exports.extractChairsNumber = exports.weightToPounds = exports.dimensionsToCm = exports.separateDimensionsAndWeight = exports.extractWeightFromText = exports.extractSKUFromUrl = exports.formatCookies = void 0;
+exports.extractDIN = exports.extractChairsNumber = exports.weightToPounds = exports.dimensionsToCm = exports.separateDimensionsAndWeight = exports.cleanDescription = exports.extractWeightFromText = exports.extractSKUFromUrl = exports.formatCookies = exports.hasContactInfo = exports.removeContactInfo = void 0;
 exports.allowImageSize = allowImageSize;
 exports.removeEmojis = removeEmojis;
 exports.sleep = sleep;
 const axios_1 = __importDefault(require("axios"));
 const image_size_1 = require("image-size");
+const removeContactInfo = (text) => {
+    const urlRegex = /(?:https?:\/\/|www\.)[^\s/$.?#].[^\s]*/gi;
+    const socialMediaRegex = /@[a-zA-Z0-9_]{1,15}/g;
+    const domainRegex = /\b(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}\b/gi;
+    let cleanedText = text.replace(urlRegex, "").replace(socialMediaRegex, "");
+    cleanedText = cleanedText.replace(domainRegex, "");
+    cleanedText = cleanedText.replace(".com", "").replace("wwww.", "");
+    return cleanedText.trim();
+};
+exports.removeContactInfo = removeContactInfo;
+const hasContactInfo = (text) => {
+    const urlRegex = /((https?:\/\/)?(www\.)?[^\s]+(\.[a-z]{2,}))|(\b\w+\.[a-z]{2,}\b)/gi;
+    const phoneRegex = /\b\+?[\d\s\-()]{7,}\b/g;
+    const socialMediaRegex = /@[A-Za-z0-9_.]+/g;
+    const contactPhrasesRegex = /\b(contáctanos|contáctame|contáctate con|síguenos|sígueme|visita nuestra página|puedes llamarnos|visítanos en|llámanos|llámame|envíanos un correo|escríbenos|ponte en contacto|agenda una llamada|consulta con nosotros|habla con nosotros|puedes enviarnos)\b/gi;
+    const hasUrl = urlRegex.test(text);
+    const hasPhone = phoneRegex.test(text);
+    const hasSocialMedia = socialMediaRegex.test(text);
+    const hasContactPhrases = contactPhrasesRegex.test(text);
+    return hasUrl || hasSocialMedia || hasContactPhrases;
+};
+exports.hasContactInfo = hasContactInfo;
 async function allowImageSize(url) {
     try {
         const response = await axios_1.default.get(url, { responseType: "arraybuffer" });
@@ -56,8 +78,57 @@ const extractWeightFromText = (text) => {
     return match ? match[0] : null;
 };
 exports.extractWeightFromText = extractWeightFromText;
+const cleanDescription = (description) => {
+    const urlRegex = /(?:https?:\/\/)?(?:www\.)?[^\s\/]+\.[a-z]{2,}(?:\/[^\s]*)?/gi;
+    const phoneRegex = /\b\+?[\d\s\-()]{7,}\b/g;
+    const socialMediaRegex = /@[A-Za-z0-9_.]+/g;
+    const contactPhrasesRegex = /\b(contáctanos|contáctame|contáctate con|síguenos|sígueme|visita nuestra página|puedes llamarnos|visítanos en|llámanos|llámame|envíanos un correo|escríbenos|ponte en contacto|agenda una llamada|consulta con nosotros|habla con nosotros|puedes enviarnos)\b/gi;
+    const untouchedStart = description.slice(0, 689) + ")\n";
+    let textToClean = description.slice(716, -1777);
+    const untouchedEnd = description.slice(-1777);
+    // console.log(untouchedEnd);
+    const [attributesText, amazonDescription] = splitTextByDescription(textToClean);
+    const cleanedText = amazonDescription
+        .replace(urlRegex, "")
+        .replace(phoneRegex, "")
+        .replace(socialMediaRegex, "")
+        .replace(contactPhrasesRegex, "")
+        .trim();
+    // .replace(/\s{2,}/g, " ")
+    return (untouchedStart +
+        "\n" +
+        attributesText +
+        "\n" +
+        removeEmojis(cleanedText) +
+        "\n\n" +
+        untouchedEnd);
+};
+exports.cleanDescription = cleanDescription;
+function splitTextByDescription(text) {
+    // Definir la frase de búsqueda
+    const searchPhrase = "Descripción del producto";
+    // Encontrar la posición de la frase en el texto
+    const index = text.indexOf(searchPhrase);
+    // Si la frase no se encuentra, devolver el texto completo en la primera parte y una cadena vacía en la segunda
+    if (index === -1) {
+        return [text, ""];
+    }
+    // Dividir el texto en dos partes
+    const beforeDescription = text.substring(0, index);
+    const afterDescription = text.substring(index + searchPhrase.length);
+    // Retornar ambas partes en un array
+    return [beforeDescription, afterDescription];
+}
+function trimAfterDescription(text) {
+    const searchPhrase = "Descripción del producto";
+    const index = text.indexOf(searchPhrase);
+    if (index === -1) {
+        return text;
+    }
+    return text.substring(0, index + searchPhrase.length);
+}
 function removeEmojis(text) {
-    const emojiRegex = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F700}-\u{1F77F}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA70}-\u{1FAFF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{2300}-\u{23FF}]|[\u{2B50}]|[\u{1F004}-\u{1F0CF}]|[\u{1F1E6}-\u{1F1FF}]|[\u{2B06}]|[\u{2934}-\u{2935}]|[\u{3030}]|\u{2744}\u{FE0F}/gu;
+    const emojiRegex = /[^a-zA-Z0-9 .,!?@#$%^&*()_\-+=:;"'`~<>{}\[\]\\/|\n\ráéíóúÁÉÍÓÚñÑ]+/gu;
     return text.replace(emojiRegex, "");
 }
 const separateDimensionsAndWeight = (dimensions) => {

@@ -12,6 +12,7 @@ import {
   weightToPounds,
   removeEmojis,
   extractDIN,
+  hasContactInfo,
 } from "../utils/helpers";
 import { readJSON } from "../utils/jsonHelper";
 
@@ -22,7 +23,7 @@ export class Product {
   private description: string;
   private attributes: Attributes;
   private category_id: string | null;
-  private condition: "new" | "refurbished ";
+  private condition: "new" | "refurbished";
   private pictures: {
     source: string;
   }[];
@@ -86,7 +87,7 @@ export class Product {
       const DIN = extractDIN(this.title);
       this.attributes["Dimensiones estándar del estéreo"] = DIN || "2 DIN";
     }
-    await this.setAttrByCategory(categoryId);
+    // await this.setAttrByCategory(categoryId);
   }
 
   setAttributes(details: any, specs: any) {
@@ -106,6 +107,7 @@ export class Product {
     };
 
     for (const key in details) {
+      if (hasContactInfo(details[key])) continue;
       let rightKey = key.replace(":", "");
       if (Object.keys(parsedKeys).includes(rightKey)) {
         rightKey = parsedKeys[rightKey];
@@ -129,6 +131,9 @@ export class Product {
     }
 
     for (const key in specs) {
+      if (hasContactInfo(specs[key])) continue;
+      if (isForbiddenProduct(specs[key]))
+        throw new Error("Producto prohibido.");
       let rightKey = key;
       if (Object.keys(parsedKeys).includes(rightKey)) {
         rightKey = parsedKeys[rightKey];
@@ -141,7 +146,7 @@ export class Product {
         if (
           rightKey.toLocaleLowerCase().includes("marca") &&
           details[key] &&
-          (isForbiddenProduct(specs[key]) || isAllowBrand(details[key]))
+          isAllowBrand(details[key])
         ) {
           result[rightKey] = "Producto genérico";
         } else {
@@ -153,24 +158,25 @@ export class Product {
     const { Dimensiones: dimensions } = result;
     if (!dimensions) throw new Error("Dimensiones no disponibles");
 
-    const splitedDimensions = dimensions.split("x");
+    // const splitedDimensions = dimensions.split("x");
 
-    const depth =
-      splitedDimensions[0].split('"')[0].split(" ")[0].trim() + " pulgadas";
-    const width =
-      splitedDimensions[1].split('"')[0].split(" ")[0].trim() + " pulgadas";
-    const height =
-      splitedDimensions[2].split('"')[0].split(" ")[0].trim() + " pulgadas";
+    // const depth =
+    //   splitedDimensions[0].split('"')[0].split(" ")[0].trim() + " pulgadas";
+    // const width =
+    //   splitedDimensions[1].split('"')[0].split(" ")[0].trim() + " pulgadas";
+    // const height =
+    //   splitedDimensions[2].split('"')[0].split(" ")[0].trim() + " pulgadas";
 
     const newDimensions = separateDimensionsAndWeight(dimensions);
 
     this.attributes = {
       ...result,
       ...newDimensions,
+      "Dimensiones del producto": dimensions,
       SKU: this.seller_sku,
-      Largo: depth,
-      Ancho: width,
-      Alto: height,
+      // Largo: depth,
+      // Ancho: width,
+      // Alto: height,
     };
   }
 
@@ -241,13 +247,11 @@ export class Product {
 
   correctDescription() {
     let bodyDescription = cleanText(this.description);
-    bodyDescription = cutText(bodyDescription, 50000 - 500);
+    bodyDescription = cutText(bodyDescription, 50000 - 5000);
     const attributesDescription: string[] = [];
-
-    let weight: string | number | null = "";
     for (const attribute of Object.keys(this.attributes)) {
-      if (attribute === "Peso") {
-        weight = this.attributes[attribute];
+      if (attribute === "Peso" || attribute === "Dimensiones") {
+        continue;
       }
       attributesDescription.push(`${attribute}: ${this.attributes[attribute]}`);
     }
@@ -264,17 +268,12 @@ export class Product {
 
   --- El producto se importa una vez el cliente realiza la compra
   --- Si su producto requiere confirmación de talla, color u otras características es necesario confirmar la disponibilidad  y el precio  antes de realizar la compra.
-
-  (descripción del producto en amazon)
   
-  SKU: ${this.seller_sku}
-  PESO: ${weight}
-  
-  Información adicional del producto
+  Información adicional
   ${attributesString}
 
-  Descripción del producto
-  ${removeEmojis(bodyDescription)}
+  Descripción
+  ${!hasContactInfo(bodyDescription) ? removeEmojis(bodyDescription) : ""}
 
   Algunos municipios no tienen cobertura por nuestro proveedor logístico, ante la cual se entregan en una oficina o corresponsal asignada.
 

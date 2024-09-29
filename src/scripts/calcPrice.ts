@@ -23,8 +23,8 @@ import { input } from "../utils/inputHelper";
 
 (async () => {
   await connectToDatabase();
-  let token = await refreshAccessToken();
-  const usd_rate = await getUsdToCopRate()
+  let token = await refreshAccessToken("PortilloStore");
+  const usd_rate = await getUsdToCopRate();
 
   // const browser = await chromium.launch({headless:false})
 
@@ -34,7 +34,7 @@ import { input } from "../utils/inputHelper";
 
   // await input("pres any.")
 
-  const product = await getProductBySku("B0D3KLZ423");
+  const product = await getProductBySku("B09MKJ942M");
   if (product && usd_rate) {
     const price = await calculatePrice(product, token, usd_rate);
     console.log(price);

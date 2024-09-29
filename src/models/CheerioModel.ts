@@ -116,7 +116,9 @@ export class Cheerio {
     const specsSelectors = [
       "#technicalSpecifications_feature_div tr",
       "#productDetails_techSpec_section_1 tr",
+      "#productDetails_techSpec_section_2 tr",
       "#productDetails_detailBullets_sections1 tr",
+      "#productDetails_expanderSectionTables table tr",
       "#detailBullets_feature_div li span",
     ];
 
@@ -205,14 +207,22 @@ export class Cheerio {
     return nextPageLink ? `https://www.amazon.com/${nextPageLink}` : null;
   }
 
-  getItemCondition(): string {
-    const conditionEnum: Record<string, string> = {
+  getItemCondition(): "new" | "refurbished" {
+    const conditionEnum: Record<string, "new" | "refurbished"> = {
       Refurbished: "refurbished",
       Reacondicionado: "refurbished",
+      refurbished: "refurbished",
     };
 
-    const selector = "#renewedSingleOfferCaption_feature_div";
-    const condition = this.$(selector).text().split("-")[0].trim();
+    const selector =
+      "#renewedSingleOfferCaption_feature_div, #renewedAccordionCaption_feature_div";
+    let condition = "new";
+    this.$(selector).each((i, element) => {
+      const elementText = this.$(element).text().split("-")[0].trim();
+      if (elementText.toLowerCase().includes("refurbished")) {
+        condition = "Refurbished";
+      }
+    });
 
     if (conditionEnum.hasOwnProperty(condition)) {
       return conditionEnum[condition];

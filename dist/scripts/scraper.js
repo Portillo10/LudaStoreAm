@@ -18,21 +18,14 @@ const taskManager_1 = require("../models/taskManager");
 const scrapingBeeError_1 = require("../errors/scrapingBeeError");
 (async () => {
     await (0, database_1.connectToDatabase)();
-    // let token = await refreshAccessToken("LudaStore");
-    // if (!token) throw new Error("No fue posible obtener el token");
-    // const usdRate = await getUsdToCopRate();
-    // if (!usdRate) throw new Error("No fue posible obtener el precio del dolar");
     const linkList = await (0, csvHelper_1.readLinksFromCsv)();
     let totalProducts = 0;
     let limit = 1500;
     const browser = await playwright_1.chromium.launch({ headless: true });
     const cookies = await (0, jsonHelper_1.readJSON)("data/cookies.json");
     const taskList = await taskManager_1.Task.getTasks(linkList);
+    // const taskList: any[] = ["a"];
     for (const task of taskList) {
-        // if (totalProducts >= limit) {
-        //   token = await refreshAccessToken("LudaStore");
-        //   limit += 1500;
-        // }
         if (await (0, postedLink_1.postedLinkExist)(task.mainUrl)) {
             continue;
         }
@@ -68,7 +61,7 @@ const scrapingBeeError_1 = require("../errors/scrapingBeeError");
         totalProducts += task.linkList.length;
         let postedProducts = 0;
         let errorsCount = 0;
-        let maxWorkers = 4;
+        let maxWorkers = 5;
         const contextPool = [];
         for (let i = 0; i < maxWorkers; i++) {
             const userAgent = await (0, jsonHelper_1.getRandomUserAgent)();
@@ -77,12 +70,16 @@ const scrapingBeeError_1 = require("../errors/scrapingBeeError");
                 ignoreHTTPSErrors: true,
             }));
         }
+        // const skuList: string[] = await readJSON("data/toScrape.json");
         const scrapeItem = async (link) => {
             const sku = (0, helpers_1.extractSKUFromUrl)(link);
+            if (sku == "B08CS1X53V") {
+                return null;
+            }
             if (sku) {
                 const item = await (0, product_1.getProductBySku)(sku);
                 if (item) {
-                    return null;
+                    throw new Error("Producto duplicado");
                 }
             }
             let attemp = 1;
@@ -109,22 +106,14 @@ const scrapingBeeError_1 = require("../errors/scrapingBeeError");
                     await pageData.setCategoryId(task.category_id || "");
                     pageData.correctTittle();
                     pageData.correctDescription();
-                    // console.log(pageData.getItemInfo());
-                    // await input("Presione enter")
                     let data;
                     try {
-                        // const { product_id, ml_price } = await postProduct(
-                        //   pageData,
-                        //   token,
-                        //   usdRate
-                        // );
                         data = {
                             ...pageData.getItemInfo(),
                             item_id: null,
-                            state: "pending",
+                            state: "publish",
                         };
                         postedProducts++;
-                        console.log(`${postedProducts} publicados de ${task.linkList.length} - ${errorsCount} productos omitidos`);
                     }
                     catch (error) {
                         data = {
@@ -135,6 +124,7 @@ const scrapingBeeError_1 = require("../errors/scrapingBeeError");
                         errorsCount++;
                     }
                     await (0, product_1.createProduct)(data);
+                    console.log(`${sku} ${postedProducts} scrapeados de ${task.linkList.length}, ${errorsCount} omitidos`);
                     await task.addSku(data.sku || "");
                     await task.deleteLinkElement(link);
                     return pageData;
@@ -189,6 +179,7 @@ const scrapingBeeError_1 = require("../errors/scrapingBeeError");
             category_id: task.category_id,
             updated: false,
             skuList: task.skuList,
+            lastUpdate: new Date(),
         });
         await task.endTask();
         console.log(`${postedProducts} publicados de ${task.linkList.length}`);

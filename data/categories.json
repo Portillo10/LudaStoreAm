@@ -9,37 +9,45 @@
     "parsed_attributes": {
       "Forma del producto": "Formato"
     },
-    "default_values": {}
+    "default_values": {
+      "Formato": "No especifica"
+    }
   },
   "MCO181042": {
     "parsed_attributes": {
       "Forma del producto": "Formato del maquillaje"
     },
-    "default_values": {}
+    "default_values": {
+      "Formato del maquillaje": "No especifica"
+    }
   },
   "MCO441231": {
     "parsed_attributes": {},
     "default_values": {
-      "Es un kit de fábrica": "No"
+      "Es un kit de fábrica": "Sí"
     }
   },
   "MCO157400": {
     "parsed_attributes": {},
     "default_values": {
-      "Es un kit de fábrica": "No"
+      "Es un kit de fábrica": "Sí"
     }
   },
   "MCO429392": {
     "parsed_attributes": {
       "Tipo de acabado": "Efecto del polvo"
     },
-    "default_values": {}
+    "default_values": {
+      "Efecto del polvo": "No especifica"
+    }
   },
   "MCO181069": {
     "parsed_attributes": {
       "Forma del producto": "Formato del fortalecedor"
     },
-    "default_values": {}
+    "default_values": {
+      "Formato del fortalecedor": "No especifica"
+    }
   },
   "MCO8830": {
     "parsed_attributes": {},
@@ -81,7 +89,9 @@
       "Tamaño de rosca del filtro para fotos": "Tamaño del filtro",
       "Tipo de efecto de filtro fotográfico": "Tipo de filtro"
     },
-    "default_values": {}
+    "default_values": {
+      "Tamaño del filtro": "1 mm"
+    }
   },
   "MCO14903": {
     "parsed_attributes": {
@@ -106,7 +116,10 @@
       "Tipo de conector": "Tipo de cable y adaptador",
       "Tipo de cable": "Tipo de cable y adaptador"
     },
-    "default_values": {}
+    "default_values": {
+      "Tipo de producto": "Cable",
+      "Tipo de cable y adaptador": "No especifica"
+    }
   },
   "MCO424978": {
     "parsed_attributes": {
@@ -150,6 +163,355 @@
     "parsed_attributes": {},
     "default_values": {
       "Herramientas eléctricas recomendadas": "Taladro"
+    }
+  },
+  "MCO1652": {
+    "parsed_attributes": {
+      "Modelo de CPU": "Línea del procesador",
+      "Procesador": "Modelo del procesador"
+    },
+    "default_values": {
+      "Marca del procesador": "No especifica",
+      "Línea del procesador": "No especifica",
+      "Modelo del procesador": "No especifica"
+    }
+  },
+  "MCO1649": {
+    "parsed_attributes": {
+      "Modelo de CPU": "Línea del procesador",
+      "Procesador": "Modelo del procesador"
+    },
+    "default_values": {
+      "Marca del procesador": "No especifica",
+      "Línea del procesador": "No especifica",
+      "Modelo del procesador": "No especifica",
+      "Es un kit de fábrica": "sí"
+    }
+  },
+  "MCO1656": {
+    "parsed_attributes": {
+      "Tamaño de pantalla": "Tamaño de la pantalla"
+    },
+    "default_values": {
+      "Tamaño de la pantalla": "No especifica"
+    }
+  },
+  "MCO430919": {
+    "parsed_attributes": {
+      "Marca": "Marca del repuesto"
+    },
+    "default_values": {
+      "Marca del repuesto": "Genérica"
+    }
+  },
+  "MCO1713": {
+    "parsed_attributes": {
+      "Marca": "Marca del repuesto",
+      "Modelo": "Modelo del repuesto"
+    },
+    "default_values": {
+      "Marca del repuesto": "Genérica"
+    }
+  },
+  "MCO7415": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Tipo de cartucho": "Alternativo"
+    }
+  },
+  "MCO430344": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Número de pieza del dispositivo": "No especifica"
+    }
+  },
+  "MCO3560": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Tipo de tóner": "No especifica"
+    }
+  },
+  "MCO419940": {
+    "parsed_attributes": {
+      "Tipo de montaje": "Tipo de instalación"
+    },
+    "default_values": {
+      "Tipo de instalación": "No especifica"
+    }
+  },
+  "MCO430627": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Tamaño de la pantalla": "0 pulgadas"
+    }
+  },
+  "MCO113017": {
+    "parsed_attributes": {
+      "Potencia": "Potencia pico"
+    },
+    "default_values": {
+      "Potencia pico": "1 VA"
+    }
+  },
+  "MCO431810": {
+    "parsed_attributes": {
+      "Tipo de conector": "Conector de entrada",
+      "Marca": "Marca del cable"
+    },
+    "default_values": {
+      "Conector de entrada": "usb"
+    }
+  },
+  "MCO7642": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Tipo de antena y adaptador": "Antena"
+    }
+  },
+  "MCO1672": {
+    "parsed_attributes": {
+      "Capacidad de almacenamiento digital": "Capacidad",
+      "Talla": "Capacidad"
+    },
+    "default_values": {
+      "Capacidad": "0 GB"
+    }
+  },
+  "MCO5027": {
+    "parsed_attributes": {
+      "Capacidad de almacenamiento de memoria": "Capacidad de almacenamiento de datos",
+      "Interfaz de hardware": "Versión del puerto USB"
+    },
+    "default_values": {
+      "Capacidad de almacenamiento de datos": "0 GB",
+      "Versión del puerto USB": "3.0"
+    }
+  },
+  "MCO1694": {
+    "parsed_attributes": {
+      "Tamaño de la memoria de la computadora": "Capacidad total",
+      "Tamaño": "Módulos de memoria RAM"
+    },
+    "default_values": {
+      "Tamaño de la memoria de la computadora": "0 GB",
+      "Módulos de memoria RAM": "No especifica"
+    }
+  },
+  "MCO441767": {
+    "parsed_attributes": {
+      "Marca": "Marca del cargador",
+      "Modelo": "Modelo del cargador"
+    },
+    "default_values": {
+      "Tipo de dispositivo": "No especifica"
+    }
+  },
+  "MCO177810": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Tipo de dispositivo": "No especifica"
+    }
+  },
+  "MCO441833": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Es un kit de fábrica": "Sí"
+    }
+  },
+  "MCO429452": {
+    "parsed_attributes": {
+      "Marca": "Marca del soporte",
+      "Modelo": "Modelo del soporte"
+    },
+    "default_values": {}
+  },
+  "MCO18205": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Tipo de producto": "Funda"
+    }
+  },
+  "MCO116391": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Tipo de cortina y persiana": "Panel",
+      "Altura": "1 cm",
+      "Ancho": "1 cm"
+    }
+  },
+  "MCO441313": {
+    "parsed_attributes": {
+      "Marca": "Fabricante"
+    },
+    "default_values": {
+      "Tipo de vela": "Aromática"
+    }
+  },
+  "MCO378160": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Material": "Madera"
+    }
+  },
+  "MCO7156": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Personaje": "Jesús",
+      "Tipo de obra": "Réplica",
+      "Tipo de escultura": "Estatua"
+    }
+  },
+  "MCO442201": {
+    "parsed_attributes": {
+      "Personajes de caricaturas": "Personaje"
+    },
+    "default_values": {
+      "Personaje": "No especifica",
+      "Tipo de obra": "Réplica",
+      "Tipo de escultura": "Estatua"
+    }
+  },
+  "MCO45969": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Edad recomendada": "14 años o más"
+    }
+  },
+  "MCO418204": {
+    "parsed_attributes": {
+      "Marca": "Fabricante",
+      "Tipo de instalación": "Tipo de estante"
+    },
+    "default_values": {
+      "Material": "No especifica",
+      "Tipo de estante": "Flotante",
+      "Fabricante": "No especifica"
+    }
+  },
+  "MCO442250": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Material": "Plástico"
+    }
+  },
+  "MCO3398": {
+    "parsed_attributes": {
+      "Estilo": "Modelo del vehículo",
+      "Modelo": "Modelo del vehículo",
+      "Estaciones": "Estaciones del año",
+      "Carga máxima recomendada": "Carga máxima"
+    },
+    "default_values": {
+      "Marca del vehículo": "Genérica",
+      "Fabricante": "No especifica",
+      "Escala": "1:48",
+      "Es coleccionable": "Sí",
+      "Edad recomendada": "14 años o más"
+    }
+  },
+  "MCO7159": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Tipo de producto": "Sofá",
+      "Cantidad de cuerpos": "1",
+      "Es reclinable": "No",
+      "Es en L": "No",
+      "Es esquinero": "No",
+      "Es sofá cama": "No"
+    }
+  },
+  "MCO441796": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Largo": "0 cm",
+      "Altura": "0 cm"
+    }
+  },
+  "MCO166352": {
+    "parsed_attributes": {
+      "Talla": "Tamaño de la cama"
+    },
+    "default_values": {
+      "Tamaño de la cama": "Doble"
+    }
+  },
+  "MCO166344": {
+    "parsed_attributes": {
+      "Talla": "Tamaño del colchón"
+    },
+    "default_values": {
+      "Presentación": "Juego de sábanas",
+      "Tamaño del colchón": "Doble"
+    }
+  },
+  "MCO116389": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Largo": "0 cm",
+      "Altura": "0 cm"
+    }
+  },
+  "MCO166348": {
+    "parsed_attributes": {
+      "Talla": "Tamaño del colchón"
+    },
+    "default_values": {
+      "Tamaño del colchón": "Doble"
+    }
+  },
+  "MCO166345": {
+    "parsed_attributes": {
+      "Talla": "Tamaño del colchón"
+    },
+    "default_values": {
+      "Tamaño del colchón": "Doble"
+    }
+  },
+  "MCO166646": {
+    "parsed_attributes": {
+      "Talla": "Tamaño del colchón"
+    },
+    "default_values": {
+      "Tamaño del colchón": "Doble"
+    }
+  },
+  "MCO179556": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Edad recomendada": "14 años o más"
+    }
+  },
+  "MCO432776": {
+    "parsed_attributes": {
+      "Marca": "Fabricante"
+    },
+    "default_values": {}
+  },
+  "MCO441848": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Tipo de producto": "Toldo"
+    }
+  },
+  "MCO441820": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Cantidad de piezas": "1",
+      "Es un kit de fábrica": "No"
+    }
+  },
+  "MCO115346": {
+    "parsed_attributes": {
+      "Tipo de montaje": "Tipo de ventilador"
+    },
+    "default_values": {
+      "Tipo de ventilador": "No especifica"
+    }
+  },
+  "MCO441838": {
+    "parsed_attributes": {},
+    "default_values": {
+      "Es inflamable": "No"
     }
   }
 }

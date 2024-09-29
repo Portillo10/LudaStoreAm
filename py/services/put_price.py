@@ -45,5 +45,5 @@ def pause_post(item_id, access_token):
         print("Publicación pausada")
         
     else:
-        print("Error pausando la aplicación")
+        print("Error pausando la publicación")
         

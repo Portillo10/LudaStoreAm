@@ -1,8 +1,8 @@
 import { config } from "dotenv";
 config();
 import { connectToDatabase } from "../db/database";
-import { getStoreByAlias, setProducts } from "../db/models/store";
-import { getByCategories } from "../db/models/product";
+import {  getStoreByAlias, setProducts } from "../db/models/store";
+import { getByCategories, getProductsBySkuList } from "../db/models/product";
 import { input } from "../utils/inputHelper";
 
 const categories = [
@@ -48,18 +48,9 @@ const categories = [
 
 const run = async () => {
   await connectToDatabase();
-  const store = await getStoreByAlias("LudaStore");
+  const store = await getStoreByAlias("PortilloStore");
   if (store) {
-    const products = await getByCategories(categories);
-    console.log(products.length);
     
-    const items = products
-      .map((product) => ({ sku: product.sku, item_id: product.item_id }))
-      .filter((item) => item.sku != null && item.item_id != null);
-
-    console.log(items.length);
-    await input("Presione enter")
-    // await setProducts(items, store._id);
   }
   process.exit(0);
 };

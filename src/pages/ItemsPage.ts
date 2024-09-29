@@ -56,9 +56,9 @@ export class ItemsPage extends BasePage {
     for (const item of linksList) {
       const sku = extractSKUFromUrl(item.link || "");
       const product = await getProductBySku(sku || "");
-      if (product) {
+      if (product || result.includes(`https://www.amazon.com/-/es/dp/${item.sku}`)) {
         count++
-      } else if (!isForbiddenProduct(item.title) && !result.includes(`https://www.amazon.com/-/es/dp/${item.sku}`)) {
+      } else if (!isForbiddenProduct(item.title)) {
         result.push(`https://www.amazon.com/-/es/dp/${item.sku}`);
       }
     }
@@ -92,7 +92,7 @@ export class ItemsPage extends BasePage {
       task.loadLinks(newLinks);
       await task.setCurrentUrl(currentUrl)
       console.log(`${task.linkList.length} productos extraídos`);
-      if (task.linkList.length >= 1500) {
+      if (task.linkList.length >= 1800) {
         await task.setCurrentUrl(null)
         break;
       }
